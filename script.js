@@ -81,61 +81,122 @@ toggleGridLink.addEventListener('click', function (e) {
 });
 
 //Rulers
-const rulerSize = 20; 
-      const rulerColor = '#000'; 
-      const rulerFont = '12px Arial'; 
+const rulerSize = 20;
+const rulerColor = '#000';
+const rulerFont = '12px Arial';
 
-      let showRuler = false; // Biến Boolean lưu trạng thái của dải đo
+let showRuler = false; // Biến Boolean lưu trạng thái của dải đo
 
-      function drawRulers() {
-        if (!showRuler) { 
-            toggleRulerButton.classList.remove('view-active')
-            context.clearRect(rulerSize + 1, 0, canvas.width - rulerSize - 0.5, rulerSize + 1);
-            context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5); // Xóa dải đo dọc
-            return
-        }
-        toggleRulerButton.classList.add('view-active')
-        context.beginPath();
-        context.strokeStyle = rulerColor;
+function drawRulers() {
+    if (!showRuler) {
+        toggleRulerButton.classList.remove('view-active')
+        context.clearRect(rulerSize + 1, 0, canvas.width - rulerSize - 0.5, rulerSize + 1);
+        context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5); // Xóa dải đo dọc
+        return
+    }
+    toggleRulerButton.classList.add('view-active')
+    context.beginPath();
+    context.strokeStyle = rulerColor;
 
-        // Vẽ dải đo ngang
-        context.moveTo(rulerSize + 0.5, 0);
-        context.lineTo(rulerSize + 0.5, canvas.height);
-        context.stroke();
+    // Vẽ dải đo ngang
+    context.moveTo(rulerSize + 0.5, 0);
+    context.lineTo(rulerSize + 0.5, canvas.height);
+    context.stroke();
 
-        // Vẽ dải đo dọc
-        context.moveTo(0, rulerSize + 0.5);
-        context.lineTo(canvas.width, rulerSize + 0.5);
-        context.stroke();
+    // Vẽ dải đo dọc
+    context.moveTo(0, rulerSize + 0.5);
+    context.lineTo(canvas.width, rulerSize + 0.5);
+    context.stroke();
 
-        // Thêm các con số đại diện cho các giá trị đo
-        context.font = rulerFont;
-        context.fillStyle = rulerColor;
-        context.textAlign = 'center';
-        context.textBaseline = 'top';
-        for (let i = rulerSize; i < canvas.width; i += rulerSize) {
-          context.moveTo(i + 0.5, rulerSize);
-          context.lineTo(i + 0.5, rulerSize / 2);
-          context.fillText(i.toString(), i + 0.5, 2);
-        }
-        for (let i = rulerSize; i < canvas.height; i += rulerSize) {
-          context.moveTo(rulerSize, i + 0.5);
-          context.lineTo(rulerSize / 2, i + 0.5);
-          context.fillText(i.toString(), 2, i + 0.5);
-        }
-        context.stroke();
-      }
+    // Thêm các con số đại diện cho các giá trị đo
+    context.font = rulerFont;
+    context.fillStyle = rulerColor;
+    context.textAlign = 'center';
+    context.textBaseline = 'top';
+    for (let i = rulerSize; i < canvas.width; i += rulerSize) {
+        context.moveTo(i + 0.5, rulerSize);
+        context.lineTo(i + 0.5, rulerSize / 2);
+        context.fillText(i.toString(), i + 0.5, 2);
+    }
+    for (let i = rulerSize; i < canvas.height; i += rulerSize) {
+        context.moveTo(rulerSize, i + 0.5);
+        context.lineTo(rulerSize / 2, i + 0.5);
+        context.fillText(i.toString(), 2, i + 0.5);
+    }
+    context.stroke();
+}
 
-      function toggleRuler() {
-        showRuler = !showRuler; // Đảo ngược giá trị của biến showRuler
-        drawRulers(); // Vẽ lại dải đo trên canvas
-      }
+function toggleRuler() {
+    showRuler = !showRuler; // Đảo ngược giá trị của biến showRuler
+    drawRulers(); // Vẽ lại dải đo trên canvas
+}
 
 
-      const toggleRulerButton = document.getElementById('toggle-ruler');
-      toggleRulerButton.addEventListener('click', toggleRuler); // Thêm sự kiện click để toggle dải đo
+const toggleRulerButton = document.getElementById('toggle-ruler');
+toggleRulerButton.addEventListener('click', toggleRuler); // Thêm sự kiện click để toggle dải đo
+//Undo - Redo
+const undoButton = document.getElementById('undoBtn');
+const redoButton = document.getElementById('redoBtn');
+const history = [];
+let currentState = null;
+let currentStateIndex = -1;
 
-      
+function saveState() {
+    const state = canvas.toDataURL();
+    if (currentStateIndex < history.length - 1) {
+        history.splice(currentStateIndex + 1);
+    }
+    history.push(state);
+    currentStateIndex++;
+    updateButtons();
+}
+
+function undo() {
+    if (currentStateIndex > 0) {
+        currentStateIndex--;
+        const state = new Image();
+        state.onload = function () {
+            context.clearRect(0, 0, canvas.width, canvas.height)
+            context.drawImage(state, 0, 0);
+            updateButtons();
+        };
+        state.src = history[currentStateIndex];
+    }
+}
+
+function redo() {
+    if (currentStateIndex < history.length - 1) {
+        currentStateIndex++;
+        const state = new Image();
+        state.onload = function () {
+            context.clearRect(0, 0, canvas.width, canvas.height)
+            context.drawImage(state, 0, 0);
+            updateButtons();
+        };
+        state.src = history[currentStateIndex];
+    }
+}
+
+function updateButtons() {
+    undoButton.disabled = currentStateIndex <= 0;
+    redoButton.disabled = currentStateIndex >= history.length - 1;
+}
+
+canvas.addEventListener('mousedown', function (event) {
+    saveState();
+});
+
+undoButton.addEventListener('click', function (event) {
+    undo();
+});
+
+redoButton.addEventListener('click', function (event) {
+    redo();
+});
+
+updateButtons();
+
+// Tools
 let pencilBtn = document.querySelector("#pencil")
 pencilBtn.classList.add("btn-focus_focus")
 let btnsFocus = document.querySelectorAll('.btn-focus');
@@ -388,56 +449,56 @@ const toggleStatusBarLink = document.getElementById('toggle-status-bar');
 const statusBar = document.getElementById('status-bar');
 
 function updateStatusBar() {
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
-  const mouseX = event.offsetX;
-  const mouseY = event.offsetY;
-  const color = '#000000';
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const mouseX = event.offsetX;
+    const mouseY = event.offsetY;
+    const color = '#000000';
 
-  canvasSizeSpan.textContent = `${canvasWidth} x ${canvasHeight}`;
-  mousePositionSpan.textContent = `(${mouseX}, ${mouseY})`;
-  colorSpan.textContent = `Color: ${color}`;
+    canvasSizeSpan.textContent = `${canvasWidth} x ${canvasHeight}`;
+    mousePositionSpan.textContent = `(${mouseX}, ${mouseY})`;
+    colorSpan.textContent = `Color: ${color}`;
 }
 
 canvas.addEventListener('mousemove', updateStatusBar);
 
-toggleStatusBarLink.addEventListener('click', function() {
-        statusBar.classList.toggle('hidden');
-        toggleStatusBarLink .classList.toggle('view-active');
+toggleStatusBarLink.addEventListener('click', function () {
+    statusBar.classList.toggle('hidden');
+    toggleStatusBarLink.classList.toggle('view-active');
 });
 
 //fullscreen
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 
 function requestFullscreen(element) {
-  if (element.requestFullscreen) {
-    element.requestFullscreen();
-  } else if (element.mozRequestFullScreen) { /* Firefox */
-    element.mozRequestFullScreen();
-  } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-    element.webkitRequestFullscreen();
-  } else if (element.msRequestFullscreen) { /* IE/Edge */
-    element.msRequestFullscreen();
-  }
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) { /* Firefox */
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { /* IE/Edge */
+        element.msRequestFullscreen();
+    }
 }
 
 function exitFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.mozCancelFullScreen) { /* Firefox */
-    document.mozCancelFullScreen();
-  } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
-    document.webkitExitFullscreen();
-  } else if (document.msExitFullscreen) { /* IE/Edge */
-    document.msExitFullscreen();
-  }
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { /* Firefox */
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { /* IE/Edge */
+        document.msExitFullscreen();
+    }
 }
 
-fullscreenBtn.addEventListener('click', function(event) {
-  event.preventDefault();
-  if (document.fullscreenElement) {
-    exitFullscreen();
-  } else {
-    requestFullscreen(document.documentElement);
-  }
+fullscreenBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    if (document.fullscreenElement) {
+        exitFullscreen();
+    } else {
+        requestFullscreen(document.documentElement);
+    }
 });
