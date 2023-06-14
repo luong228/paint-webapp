@@ -1,3 +1,6 @@
+body{
+    cursor: url('pencil.svg'), auto;
+}
 #canvas-area {
     border: 1px solid black;
     background-color: white;
@@ -9,20 +12,63 @@ button {
 a {
     text-decoration: none;
 }
+.fileAttributes {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.fileAttributes > p {
+    flex-basis: calc(100% /2);
+}
+.card-container {
 
+    display: flex;
+    flex-wrap: wrap;
+}
+.card-container > .card {
+    flex-basis: calc(100% /2);
+}
+.imageSize {
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:center ;
+}
+.imageSize > div{
+    flex-basis: calc(100% /3);
+}
+.width, .height > input{
+    width: 100px;
+}
+.default {
+    padding-top: 20px;
+}
+.btn-modal {
+    display: flex;
+    justify-content: space-between;
+}
+.btn-cancel {
+    background-color: #f3f3f3;
+}
+.btn-cancel:hover {
+    background-color: #a5a2a2;
+}
+.btn-modal > button {
+    width: 100%;
+}
 .toolbar {
     display: flex;
 }
 
-.toolbar button {
-    /* margin-right: 10px; */
+.btn-focus_focus{
+    outline: 5px auto -webkit-focus-ring-color;
 }
 
 .component-area {
     display: flex;
     border-bottom: 1.5px solid #eaeaea;
     border-top: 1.5px solid #eaeaea;
-    margin-bottom: 20px;
+    padding-bottom: 15px;
     padding-left: 20px;
     background-color: #f9f9f9;
 }
@@ -38,6 +84,23 @@ a {
 .dropdown-item:focus, .dropdown-item:hover {
     background-color: #eaeaea !important;
 }
+.dropdown-submenu {
+    position: relative;
+  }
+  
+  .dropdown-submenu a::after {
+    transform: rotate(-90deg);
+    position: absolute;
+    right: 6px;
+    top: .8em;
+  }
+  
+  .dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: .1rem;
+    margin-right: .1rem;
+  }
 .component-area > div {
     display: flex;
     flex-direction: column;
@@ -47,6 +110,11 @@ a {
 .flex {
     display: flex;
 }
+.canvas-container {
+    padding-top: 20px;
+    padding-left: 20px;
+    background-color: #f3f3f3;
+}
 .clipboard-btn,
 .image-btn,
 .toolbar-btn,
@@ -54,6 +122,9 @@ a {
 .size-btn,
 .colors-btn {
     display: flex;
+}
+.toolbar-btn > button:focus {
+    border: 1px solid;
 }
 .clipboard-btn {
     justify-content: center;
