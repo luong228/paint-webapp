@@ -314,11 +314,26 @@
             <div class="shape-text">Shape</div>
         </div>
         <div class="size">
-            <div class="size-btn">
-                <button id="size" class="tooltipnew">
+            <div class="size-btn dropdown">
+                <button id="size" class="tooltipnew dropdown-toggle" id="dropdownSizeButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
                     <i class="fal fa-wave-sine"></i>
                     <span class="tooltiptext">Size</span>
                 </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownSizeButton">
+                    <li>
+                        <a class="dropdown-item size-item size-focus" value="2" href="#">2px</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item size-item"  value="3" href="#">3px</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item size-item" value="4" href="#">4px</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item size-item" value="5" href="#">5px</a>
+                    </li>
+                </ul>
             </div>
             <div class="size-text">
                 Size

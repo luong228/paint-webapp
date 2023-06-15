@@ -66,6 +66,9 @@ a {
 .btn-focus_focus{
     outline: 5px auto -webkit-focus-ring-color;
 }
+.size-focus{
+    outline: 5px auto -webkit-focus-ring-color;
+}
 #brushes {
     background: #f9f9f9;
 }

@@ -789,6 +789,17 @@ brushItems.forEach( (item ) => {
     })
 })
 
+const sizeItems = document.querySelectorAll(".size-item")
+sizeItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+        brushSize = item.getAttribute("value");
+        item.classList.add('size-focus')
+        sizeItems.forEach((otherItem) =>{
+            if(item != otherItem)
+                otherItem.classList.remove('size-focus')
+        })
+    })
+})
 function getCurvePoints(points) {
     var curvePoints = [];
     var tDelta = 0.1;
