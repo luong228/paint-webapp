@@ -66,7 +66,9 @@ a {
 .btn-focus_focus{
     outline: 5px auto -webkit-focus-ring-color;
 }
-
+#brushes {
+    background: #f9f9f9;
+}
 .component-area {
     display: flex;
     border-bottom: 1.5px solid #eaeaea;
@@ -190,6 +192,10 @@ a {
 .shape-container {
     display: flex;
     flex-direction: row;
+
+}
+.shape-btn {
+    border: 1.5px solid #eaeaea;
 }
 .shape-text {
     text-align: center;

@@ -135,7 +135,7 @@
         <div class="image">
             <div class="image-btn">
                 <div class="image-btn_left">
-                    <button id="select" class="tooltipnew btn-focus">
+                    <button id="select-toggle" class="tooltipnew btn-focus">
                         <i class="fal fa-square-full"></i>
                         <span class="tooltiptext">Select</span>
                     </button>
@@ -193,10 +193,43 @@
             <div class="toolbar-text">Tools</div>
         </div>
         <div class="brushes">
-            <button id="brushes" class="tooltipnew btn-focus">
+            <div class="dropdown">
+                <button type="button" id="brushes" class="tooltipnew btn-focus dropdown-toggle"
+                id="dropdownBrushesButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
                 <i class="fa-solid fa-brush"></i>
                 <span class="tooltiptext">Brushes</span>
             </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownBrushesButton">
+                <li>
+                    <a class="dropdown-item brush-item" id="brush" href="#">Brush</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="calligraphyBrush" href="#">Calligraphy Brush</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="calligraphyPen" href="#">Calligraphy Pen</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="airBrush" href="#">AirBrush</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="oilBrush" href="#">Oil Brush</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="crayon" href="#">Crayon</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="marker" href="#">Marker</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="naturalPencil" href="#">Natural Pencil</a>
+                </li>
+                <li>
+                    <a class="dropdown-item brush-item" id="watercolorBrush" href="#">Watercolor Brush</a>
+                </li>
+            </ul>
+            </div>
             Brushes
         </div>
         <div class="shapes">

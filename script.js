@@ -5,6 +5,17 @@ let isErasing = false;
 let isMouseDown = false;
 let color = "black";
 
+//brush
+let brushSize = 2;
+let currentBrush = null;
+let calligraphyBrushPoints = [];
+let calligraphyPenPoints = [];
+let oilBrushPoints = [];
+let oilBrushOpacity = 0.5;
+let crayonOpacity = 0.5;
+
+let crayonPoints = [];
+let crayonDistance = 5;
 
 const openImage = document.getElementById('openImage');
 const imageLoader = document.getElementById('imageLoader');
@@ -108,7 +119,7 @@ function drawRulers() {
     context.lineTo(canvas.width, rulerSize + 0.5);
     context.stroke();
 
-    // Thêm các con số đại diện cho các giá trị đo
+   
     context.font = rulerFont;
     context.fillStyle = rulerColor;
     context.textAlign = 'center';
@@ -127,13 +138,13 @@ function drawRulers() {
 }
 
 function toggleRuler() {
-    showRuler = !showRuler; // Đảo ngược giá trị của biến showRuler
-    drawRulers(); // Vẽ lại dải đo trên canvas
+    showRuler = !showRuler; 
+    drawRulers(); 
 }
 
 
 const toggleRulerButton = document.getElementById('toggle-ruler');
-toggleRulerButton.addEventListener('click', toggleRuler); // Thêm sự kiện click để toggle dải đo
+toggleRulerButton.addEventListener('click', toggleRuler); 
 //Undo - Redo
 const undoButton = document.getElementById('undoBtn');
 const redoButton = document.getElementById('redoBtn');
@@ -215,6 +226,7 @@ btnsFocus.forEach(function (button) {
 document.getElementById("pencil").addEventListener("click", () => {
     isDrawing = true;
     isErasing = false;
+    currentBrush = null;
     document.body.insertAdjacentHTML('beforeend',
         "<style>body{cursor: url('pencil.svg'), auto;} </style>");
     this.focus();
@@ -222,6 +234,7 @@ document.getElementById("pencil").addEventListener("click", () => {
 document.getElementById("eraser").addEventListener("click", () => {
     isDrawing = false;
     isErasing = true;
+    currentBrush = null;
     document.body.insertAdjacentHTML('beforeend',
         "<style>body{cursor: url('square.svg'), auto;} </style>");
     this.focus();
@@ -232,9 +245,88 @@ document.getElementById("eraser").addEventListener("click", () => {
 // })
 
 canvas.addEventListener("mousedown", (event) => {
+    var x = event.clientX - canvas.offsetLeft;
+    var y = event.clientY - canvas.offsetTop;
     if (isDrawing) {
-        context.beginPath();
-        context.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+        if (currentBrush == null) {
+            context.beginPath();
+            context.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+        }
+        else if (currentBrush === "brush") {
+            context.beginPath();
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fill();
+        }
+        //  else if (currentBrush === "square") {
+        //     context.fillRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
+        // } else if (currentBrush === "triangle") {
+        //     context.beginPath();
+        //     context.moveTo(x, y - brushSize / 2);
+        //     context.lineTo(x - brushSize / 2, y + brushSize / 2);
+        //     context.lineTo(x + brushSize / 2, y + brushSize / 2);
+        //     context.closePath();
+        //     context.fill();
+        // }
+        else if (currentBrush == "airBrush") {
+            let airbrushShape = createAirbrushShape(brushSize);
+        
+            for (var i = 0; i < airbrushShape.length; i++) {
+                let offsetX = airbrushShape[i][0];
+                let offsetY = airbrushShape[i][1];
+                let alpha = airbrushShape[i][2];
+                let brushX = x + offsetX;
+                let brushY = y + offsetY;
+                // let color = "rgba(0, 0, 0, " + alpha + ")";
+                context.fillStyle = color;
+                context.fillRect(brushX, brushY, 1, 1);
+            }
+        }
+        else if (currentBrush == "calligraphyBrush") {
+            calligraphyBrushPoints.push({
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
+            })
+        }
+        else if (currentBrush == "calligraphyPen") {
+            calligraphyPenPoints.push({
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
+            });
+        }
+        else if (currentBrush == "oilBrush") {
+            oilBrushPoints.push({
+              x: event.clientX - canvas.offsetLeft,
+              y: event.clientY - canvas.offsetTop
+            });
+          }
+          else if (currentBrush == "crayon") {
+            crayonPoints.push({
+              x: event.clientX - canvas.offsetLeft,
+              y: event.clientY - canvas.offsetTop
+            });
+        }
+        else if (currentBrush == "marker") {
+            context.beginPath();
+            context.fillStyle = "yellow";
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.lineWidth = 2;
+        }
+        else if (currentBrush == "naturalPencil") {
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 1, y + 1);
+            context.lineWidth = brushSize;
+            context.lineCap = "round";
+        }
+        else if (currentBrush == "watercolorBrush") {
+            context.beginPath();
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fillStyle = color;
+            context.fill();
+        }
+        context.strokeStyle = color;
+        context.stroke();
     }
     if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
@@ -243,22 +335,209 @@ canvas.addEventListener("mousedown", (event) => {
 });
 
 canvas.addEventListener("mousemove", (event) => {
-    if (isDrawing && isMouseDown) {
-        context.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+    if (!isMouseDown)
+        return;
+    let x = event.clientX - canvas.offsetLeft;
+    let y = event.clientY - canvas.offsetTop;
+    if (isDrawing) {
+        if (currentBrush == null) {
+            context.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+        }
+        else if (currentBrush == "brush") {
+            context.beginPath();
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fill();
+        }
+        //  else if (currentBrush === "square") {
+        //     context.fillRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
+        // } else if (currentBrush === "triangle") {
+        //     context.beginPath();
+        //     context.moveTo(x, y - brushSize / 2);
+        //     context.lineTo(x - brushSize / 2, y + brushSize / 2);
+        //     context.lineTo(x + brushSize / 2, y + brushSize / 2);
+        //     context.closePath();
+        //     context.fill();
+        // }
+        else if (currentBrush == "airBrush") {
+            let airbrushShape = createAirbrushShape(brushSize);
+
+            for (var i = 0; i < airbrushShape.length; i++) {
+                let offsetX = airbrushShape[i][0];
+                let offsetY = airbrushShape[i][1];
+                let alpha = airbrushShape[i][2];
+                let brushX = x + offsetX;
+                let brushY = y + offsetY;
+                let color = "rgba(0, 0, 0, " + alpha + ")";
+                context.fillStyle = color;
+                context.fillRect(brushX, brushY, 1, 1);
+            }
+        }
+        else if (currentBrush == "calligraphyBrush") {
+            calligraphyBrushPoints.push({
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
+            })
+
+            // Vẽ Calligraphy brush
+            context.lineCap = "round";
+            context.lineJoin = "round";
+            context.lineWidth = brushSize;
+            for (var i = 1; i < calligraphyBrushPoints.length; i++) {
+                var point1 = calligraphyBrushPoints[i - 1];
+                var point2 = calligraphyBrushPoints[i];
+                var distance = Math.sqrt(
+                    Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
+                );
+                var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+                for (var j = 0; j < distance; j += brushSize / 2) {
+                    x = point1.x + Math.cos(angle) * j;
+                    y = point1.y + Math.sin(angle) * j;
+                    let radius =
+                        brushSize / 2 -
+                        (j / distance) * (brushSize / 2);
+                    context.beginPath();
+                    context.arc(x, y, radius, angle + Math.PI / 2, angle - Math.PI / 2);
+                    context.stroke();
+                }
+            }
+        }
+        else if (currentBrush == "calligraphyPen") {
+            calligraphyPenPoints.push({
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
+            });
+
+
+            context.strokeStyle = "black";
+            context.lineCap = "round";
+            context.lineJoin = "round";
+            context.lineWidth = brushSize;
+            for (var i = 1; i < calligraphyPenPoints.length; i++) {
+                var point1 = calligraphyPenPoints[i - 1];
+                var point2 = calligraphyPenPoints[i];
+                var distance = Math.sqrt(
+                    Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
+                );
+                var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+                var radius = brushSize / 2;
+                context.beginPath();
+                context.arc(point1.x, point1.y, radius, angle + Math.PI / 2, angle - Math.PI / 2);
+                context.arc(point2.x, point2.y, radius, angle - Math.PI / 2, angle + Math.PI / 2);
+                context.closePath();
+                context.fill();
+            }
+        }
+        else if (currentBrush == "oilBrush") {
+            console.log('oil');
+            oilBrushPoints.push({
+              x: event.clientX - canvas.offsetLeft,
+              y: event.clientY - canvas.offsetTop
+            });
+
+
+            context.strokeStyle = color;
+            context.lineCap = "round";
+            context.lineWidth = brushSize;
+            context.globalAlpha = oilBrushOpacity;
+            context.beginPath();
+            context.moveTo(oilBrushPoints[0].x, oilBrushPoints[0].y);
+            for (var i = 1; i < oilBrushPoints.length; i++) {
+              var point1 = oilBrushPoints[i - 1];
+              var point2 = oilBrushPoints[i];
+              var distance = Math.sqrt(
+                Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
+              );
+              var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+              var radius = brushSize / 2;
+              for (var j = 0; j < distance; j++) {
+                 x = point1.x + Math.sin(angle) * j * radius;
+                 y = point1.y + Math.cos(angle) * j * radius;
+                context.lineTo(x, y);
+              }
+            }
+            context.stroke();
+          }
+
+        else if (currentBrush == "crayon") {
+            crayonPoints.push({
+              x: event.clientX - canvas.offsetLeft,
+              y: event.clientY - canvas.offsetTop
+            });
+            
+        
+            // Vẽ Crayon
+            context.strokeStyle = color;
+    context.lineCap = "round";
+    context.lineWidth = brushSize;
+    context.globalAlpha = crayonOpacity;
+    context.beginPath();
+    var splinePoints = getCurvePoints(crayonPoints);
+    context.moveTo(splinePoints[0].x, splinePoints[0].y);
+    for (var i = 1; i < splinePoints.length; i++) {
+      var point = splinePoints[i];
+      context.lineTo(point.x, point.y);
+    }
+    context.stroke();
+          }
+          else if (currentBrush == "marker") {
+            context.beginPath();
+            context.fillStyle = color;
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.lineWidth = 2;
+        }
+        else if (currentBrush == "naturalPencil") {
+            context.lineTo(x, y);
+            context.stroke();
+        }
+        else if (currentBrush == "watercolorBrush") {
+            context.beginPath();
+            context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+            context.fillStyle = color;
+            context.fill();
+        }
         context.strokeStyle = color;
         context.stroke();
     }
-    if (isErasing && isMouseDown) {
+    if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
     }
 });
 
 canvas.addEventListener("mouseup", (event) => {
-    // isDrawing = false;
-    // isErasing = false;
+
     isMouseDown = false;
+    if (currentBrush == "calligraphyBrush") {
+        calligraphyBrushPoints = [];
+    }
+    if (currentBrush == "calligraphyPen") {
+        calligraphyPenPoints = [];
+    }
+    if (currentBrush == "oilBrush") {
+        oilBrushPoints = [];
+      }
+      if (currentBrush == "crayon") {
+        crayonPoints = [];
+      }
 });
 
+function createAirbrushShape(size) {
+    var shape = [];
+
+    var density = Math.ceil(size / 4);
+    var radius = size / 2;
+    for (var x = -radius; x <= radius; x += density) {
+        for (var y = -radius; y <= radius; y += density) {
+            var distance = Math.sqrt(x * x + y * y);
+            if (distance <= radius) {
+                var alpha = 1 - distance / radius;
+                shape.push([x, y, alpha]);
+            }
+        }
+    }
+
+    return shape;
+}
 // Menu 
 const saveButtons = document.querySelectorAll(".save");
 
@@ -502,3 +781,40 @@ fullscreenBtn.addEventListener('click', function (event) {
         requestFullscreen(document.documentElement);
     }
 });
+
+const brushItems = document.querySelectorAll(".brush-item");
+brushItems.forEach( (item ) => {
+    item.addEventListener('click', (e) => {
+        currentBrush = item.id;
+    })
+})
+
+function getCurvePoints(points) {
+    var curvePoints = [];
+    var tDelta = 0.1;
+    for (var t = 0; t <= 1; t += tDelta) {
+      var x = 0;
+      var y = 0;
+      var n = points.length - 1;
+      for (var i = 0; i <= n; i++) {
+        var b = binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
+        x += points[i].x * b;
+        y += points[i].y * b;
+      }
+      curvePoints.push({x: x, y: y});
+    }
+    curvePoints.push(points[points.length - 1]);
+    return curvePoints;
+  }
+  
+  function binomialCoefficient(n, k) {
+    var coeff = 1;
+    for (var i = n - k + 1; i <= n; i++) {
+      coeff *= i;
+    }
+    for (var i = 1; i <= k; i++) {
+      coeff /= i;
+    }
+    return coeff;
+  }
+
