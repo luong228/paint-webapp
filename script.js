@@ -191,7 +191,7 @@ function drawGrid() {
 
 function redraw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    console.log('redraw');
+
     context.drawImage(image, 0, 0);
     if (showGrid) {
         toggleGridLink.classList.add('view-active');
@@ -929,3 +929,56 @@ function getCurvePoints(points) {
     return coeff;
   }
 
+  //Rotate
+
+function rotateCanvas(canvas, degrees) {
+    const radians = degrees * Math.PI / 180;
+    const imageWidth = canvas.width;
+    const imageHeight = canvas.height;
+  
+    let rotatedCanvas;
+    if (degrees === 90 || degrees === -90) {
+      rotatedCanvas = document.createElement('canvas');
+      rotatedCanvas.width = imageHeight;
+      rotatedCanvas.height = imageWidth;
+    } else {
+      rotatedCanvas = document.createElement('canvas');
+      rotatedCanvas.width = imageWidth;
+      rotatedCanvas.height = imageHeight;
+    }
+  
+    const rotatedContext = rotatedCanvas.getContext('2d');
+  
+    if (degrees === 90) {
+      rotatedContext.translate(rotatedCanvas.width, 0);
+      rotatedContext.rotate(radians);
+    } else if (degrees === -90) {
+      rotatedContext.translate(0, rotatedCanvas.width);
+      rotatedContext.rotate(radians);
+    } else if (degrees === 180) {
+      rotatedContext.translate(rotatedCanvas.width, 0);
+      rotatedContext.scale(-1, 1);
+    }
+  
+    rotatedContext.drawImage(canvas, 0, 0);
+  
+    return rotatedCanvas;
+  }
+
+  document.getElementById("rotateRight90").addEventListener("click", function() {
+   
+    const rotatedCanvas = rotateCanvas(canvas, 90);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(rotatedCanvas, 0, 0)
+  });
+  
+  document.getElementById("rotateLeft90").addEventListener("click", function() {
+    const rotatedCanvas = rotateCanvas(canvas, -90)
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(rotatedCanvas, 0, 0)
+  });
+  document.getElementById("rotate180").addEventListener("click", function() {
+    const rotatedCanvas = rotateCanvas(canvas, 180);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(rotatedCanvas, 0, 0)
+  });
