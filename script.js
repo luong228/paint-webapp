@@ -3,8 +3,14 @@ const context = canvas.getContext("2d");
 let isDrawing = true;
 let isErasing = false;
 let isMouseDown = false;
+let isMagnifier = false;
+let isFill = false;
+let isText = false;
+let isColorpicker = false;
+let zoomLevel = 1;
 let color = "black";
-
+const fontSize = 14;
+context.font = `${fontSize}px Arial`;
 //brush
 let brushSize = 2;
 let currentBrush = null;
@@ -20,9 +26,131 @@ let crayonDistance = 5;
 const openImage = document.getElementById('openImage');
 const imageLoader = document.getElementById('imageLoader');
 openImage.addEventListener('click', function () {
-    imageLoader.click(); // Kích hoạt phần tử <input type="file"> ẩn
+    imageLoader.click(); 
 });
 
+const magnifier = document.getElementById("magnifier")
+magnifier.addEventListener('click', () => {
+    isMagnifier = true;
+    document.body.insertAdjacentHTML('beforeend',
+        "<style>body{cursor: url('magnifier.svg'), auto;} </style>");
+})
+
+//Fill
+const fillBtn = document.getElementById("fill")
+fillBtn.addEventListener('click', () => {
+    isFill = true;
+    document.body.insertAdjacentHTML('beforeend',
+        "<style>body{cursor: url('fill.svg'), auto;} </style>");
+})
+//Text
+const textBtn = document.getElementById("text")
+textBtn.addEventListener('click', () => {
+    isText = true;
+    document.body.insertAdjacentHTML('beforeend',
+    "<style>body{cursor: url('text.png'), auto;} </style>");
+})
+//Color picker
+
+const colorpickerBtn = document.getElementById("color-picker")
+colorpickerBtn.addEventListener('click', () => {
+
+    isColorpicker = toggleFocus();
+
+    document.body.insertAdjacentHTML('beforeend',
+    "<style>body{cursor: url('colorpicker.png'), auto;} </style>");
+})
+// Tools
+let pencilBtn = document.querySelector("#pencil")
+pencilBtn.classList.add("btn-focus_focus")
+let btnsFocus = document.querySelectorAll('.btn-focus');
+
+btnsFocus.forEach(function (button) {
+    button.addEventListener("click", function () {
+        button.classList.add("btn-focus_focus")
+        btnsFocus.forEach(function (otherButton) {
+            if (otherButton != button) {
+                otherButton.classList.remove("btn-focus_focus");
+            }
+        })
+    });
+
+});
+
+const toggleFocus = () => {
+    isDrawing = false;
+    isErasing = false;
+    currentBrush = null;
+    isMagnifier = false;
+    isFill = false;
+    isText = false;
+    isColorpicker = false;
+    return true;
+}
+//pencilbtn
+pencilBtn.addEventListener("click", () => {
+    isDrawing = toggleFocus(isDrawing)
+
+    document.body.insertAdjacentHTML('beforeend',
+        "<style>body{cursor: url('pencil.svg'), auto;} </style>");
+    this.focus();
+})
+const eraserBtn = document.getElementById("eraser")
+eraserBtn.addEventListener("click", () => {
+    isErasing = toggleFocus()
+
+    document.body.insertAdjacentHTML('beforeend',
+        "<style>body{cursor: url('square.svg'), auto;} </style>");
+    this.focus();
+})
+
+// Magnifier
+canvas.addEventListener("click", function(event) {
+    if(isMagnifier) {
+        
+        const zoomDelta = event.deltaY > 0 ? 1/1.1 : 1.1;
+        zoomLevel *= zoomDelta;
+        
+        canvas.width = canvas.width * zoomLevel;
+        canvas.height = canvas.height * zoomLevel;    
+        context.scale(zoomDelta, zoomDelta);
+        context.scale(1 / zoomDelta, 1 / zoomDelta);
+    }
+    if(isFill) {
+
+        context.fillStyle = color;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    if(isText) {
+        const canvasRect = canvas.getBoundingClientRect();
+        const x = event.clientX - canvasRect.left;
+        const y = event.clientY - canvasRect.top;
+
+  
+        const text = prompt("Enter text:");
+
+  
+        if (text !== null && text !== "") {
+            context.fillText(text, x, y + fontSize);
+  }
+    }
+    if(isColorpicker) {
+        const canvasRect = canvas.getBoundingClientRect();
+  const x = event.clientX - canvasRect.left;
+  const y = event.clientY - canvasRect.top;
+
+  const imageData = context.getImageData(x, y, 1, 1);
+   color = rgbToHex(imageData.data[0], imageData.data[1], imageData.data[2]);
+   console.log(color);
+   isColorpicker = false;
+   pencilBtn.click();
+    }
+});
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+
+}
+//image loader
 imageLoader.addEventListener('change', handleImage, false);
 
 function handleImage(e) {
@@ -96,25 +224,25 @@ const rulerSize = 20;
 const rulerColor = '#000';
 const rulerFont = '12px Arial';
 
-let showRuler = false; // Biến Boolean lưu trạng thái của dải đo
+let showRuler = false;
 
 function drawRulers() {
     if (!showRuler) {
         toggleRulerButton.classList.remove('view-active')
         context.clearRect(rulerSize + 1, 0, canvas.width - rulerSize - 0.5, rulerSize + 1);
-        context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5); // Xóa dải đo dọc
+        context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5); 
         return
     }
     toggleRulerButton.classList.add('view-active')
     context.beginPath();
     context.strokeStyle = rulerColor;
 
-    // Vẽ dải đo ngang
+   
     context.moveTo(rulerSize + 0.5, 0);
     context.lineTo(rulerSize + 0.5, canvas.height);
     context.stroke();
 
-    // Vẽ dải đo dọc
+   
     context.moveTo(0, rulerSize + 0.5);
     context.lineTo(canvas.width, rulerSize + 0.5);
     context.stroke();
@@ -207,38 +335,7 @@ redoButton.addEventListener('click', function (event) {
 
 updateButtons();
 
-// Tools
-let pencilBtn = document.querySelector("#pencil")
-pencilBtn.classList.add("btn-focus_focus")
-let btnsFocus = document.querySelectorAll('.btn-focus');
 
-btnsFocus.forEach(function (button) {
-    button.addEventListener("mousedown", function () {
-        button.classList.add("btn-focus_focus")
-        btnsFocus.forEach(function (otherButton) {
-            if (otherButton != button) {
-                otherButton.classList.remove("btn-focus_focus");
-            }
-        })
-    });
-
-});
-document.getElementById("pencil").addEventListener("click", () => {
-    isDrawing = true;
-    isErasing = false;
-    currentBrush = null;
-    document.body.insertAdjacentHTML('beforeend',
-        "<style>body{cursor: url('pencil.svg'), auto;} </style>");
-    this.focus();
-})
-document.getElementById("eraser").addEventListener("click", () => {
-    isDrawing = false;
-    isErasing = true;
-    currentBrush = null;
-    document.body.insertAdjacentHTML('beforeend',
-        "<style>body{cursor: url('square.svg'), auto;} </style>");
-    this.focus();
-})
 
 // document.getElementById("color").addEventListener("click", () => {
 //     color = prompt("Enter a color:");
@@ -247,6 +344,7 @@ document.getElementById("eraser").addEventListener("click", () => {
 canvas.addEventListener("mousedown", (event) => {
     var x = event.clientX - canvas.offsetLeft;
     var y = event.clientY - canvas.offsetTop;
+    if (isMagnifier || isFill || isText || isColorpicker) return
     if (isDrawing) {
         if (currentBrush == null) {
             context.beginPath();
@@ -337,6 +435,7 @@ canvas.addEventListener("mousedown", (event) => {
 canvas.addEventListener("mousemove", (event) => {
     if (!isMouseDown)
         return;
+    if (isMagnifier || isFill || isText || isColorpicker) return
     let x = event.clientX - canvas.offsetLeft;
     let y = event.clientY - canvas.offsetTop;
     if (isDrawing) {
@@ -428,7 +527,7 @@ canvas.addEventListener("mousemove", (event) => {
             }
         }
         else if (currentBrush == "oilBrush") {
-            console.log('oil');
+            // console.log('oil');
             oilBrushPoints.push({
               x: event.clientX - canvas.offsetLeft,
               y: event.clientY - canvas.offsetTop
@@ -507,6 +606,7 @@ canvas.addEventListener("mousemove", (event) => {
 canvas.addEventListener("mouseup", (event) => {
 
     isMouseDown = false;
+  
     if (currentBrush == "calligraphyBrush") {
         calligraphyBrushPoints = [];
     }
