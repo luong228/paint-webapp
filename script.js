@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas-area");
 const context = canvas.getContext("2d");
+
 let isDrawing = true;
 let isErasing = false;
 let isMouseDown = false;
@@ -131,6 +132,7 @@ canvas.addEventListener("click", function (event) {
 
 
         if (text !== null && text !== "") {
+            context.fillStyle = color;
             context.fillText(text, x, y + fontSize);
         }
     }
@@ -141,6 +143,16 @@ canvas.addEventListener("click", function (event) {
 
         const imageData = context.getImageData(x, y, 1, 1);
         color = rgbToHex(imageData.data[0], imageData.data[1], imageData.data[2]);
+
+        const primaryColor = document.querySelector(".primary-color1")
+        console.log(color);
+        primaryColor.style.backgroundColor = color;
+        if(color == 'rgb(255, 255, 255)')
+            primaryColor.style.border = '1px solid #bfbfbf'
+        else {
+            primaryColor.style.border = 'none'
+        }
+
         console.log(color);
         isColorpicker = false;
         pencilBtn.click();
@@ -1050,3 +1062,22 @@ document.addEventListener('keydown', (event) => {
         $('#redoBtn').click();
       }
   });
+
+  //colors
+
+  const colorBtns = document.querySelectorAll(".colors-btn .option");
+  colorBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // color =window.getComputedStyle(btn).getPropertyValue("fill")
+        
+        color = window.getComputedStyle(btn).getPropertyValue("background-color");
+        const primaryColor = document.querySelector(".primary-color1")
+        console.log(color);
+        primaryColor.style.backgroundColor = color;
+        if(color == 'rgb(255, 255, 255)')
+            primaryColor.style.border = '1px solid #bfbfbf'
+        else {
+            primaryColor.style.border = 'none'
+        }
+    })
+  })
