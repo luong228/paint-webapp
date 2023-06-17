@@ -982,3 +982,32 @@ function rotateCanvas(canvas, degrees) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(rotatedCanvas, 0, 0)
   });
+//flip
+function flipCanvas(canvas, direction) {
+    const flipedCanvas = document.createElement('canvas');
+    const flipedContext = flipedCanvas.getContext('2d')
+    flipedCanvas.width = canvas.width;
+    flipedCanvas.height = canvas.height
+
+    if (direction === 'horizontal') {
+      flipedContext.scale(-1, 1);
+      flipedContext.drawImage(canvas, -canvas.width, 0, canvas.width, canvas.height);
+    } else if (direction === 'vertical') {
+      flipedContext.scale(1, -1);
+      flipedContext.drawImage(canvas, 0, -canvas.height, canvas.width, canvas.height);
+    }
+  
+    return flipedCanvas;
+  }
+  document.getElementById("flipVertical").addEventListener("click", function() {
+   
+    const flipedCanvas = flipCanvas(canvas, "vertical");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(flipedCanvas, 0, 0)
+  });
+  document.getElementById("flipHorizontal").addEventListener("click", function() {
+   
+    const flipedCanvas = flipCanvas(canvas, "horizontal");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(flipedCanvas, 0, 0)
+  });
