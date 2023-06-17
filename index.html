@@ -23,7 +23,7 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li>
-                    <a class="dropdown-item" id="newCanvas" href="#">New</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#confirmNewModal">New</a>
                 </li>
                 <li>
                     <a class="dropdown-item" id="openImage" href="#">Open</a>
@@ -114,17 +114,17 @@
         <div class="clipboard">
             <div class="clipboard-btn">
                 <div class="clipboard-btn_left">
-                    <button id="paste" class="tooltipnew">
+                    <button id="paste" disabled class="tooltipnew">
                         <i class="fa-regular fa-paste"></i>
                         <span class="tooltiptext">Paste</span>
                     </button>
                 </div>
                 <div class="clipboard-btn_right">
-                    <button id="cut" class="tooltipnew">
+                    <button id="cut" disabled class="tooltipnew">
                         <i class="fal fa-cut"></i>
                         <span class="tooltiptext">Cut</span>
                     </button>
-                    <button id="copy" class="tooltipnew">
+                    <button id="copy" disabled class="tooltipnew">
                         <i class="fa-solid fa-copy"></i>
                         <span class="tooltiptext">Copy</span>
                     </button>
@@ -151,14 +151,41 @@
                     </button>
                 </div>
                 <div class="image-btn_right">
-                    <button id="rotate" class="tooltipnew">
+                    <div class="dropdown">
+
+
+                    <button id="rotate" class="tooltipnew dropdown-toggle"
+                    id="dropdownRotateButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-rotate" style="color: #005fb7"></i>
                         <span class="tooltiptext">Rotate</span>
                     </button>
-                    <button id="flip" class="tooltipnew">
+                    <ul class="dropdown-menu" aria-labelledby="dropdownRotateButton">
+                        <li>
+                            <a class="dropdown-item" id="rotateRight90" href="#">Rotate Right 90<sup>o</sup></a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="rotateLeft90" href="#">Rotate Left 90<sup>o</sup></a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="rotate180" href="#">Rotate 180<sup>o</sup></a>
+                        </li>
+                </div>
+                <div class="dropdown">
+                    <button id="flip" class="tooltipnew dropdown-toggle"
+                    id="dropdownFlipButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-repeat" style="color: #005fb7;"></i>
                         <span class="tooltiptext">Flip</span>
                     </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownFlipButton">
+                        <li>
+                            <a class="dropdown-item" id="flipVertical" href="#">Flip Vertical</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="flipHorizontal" href="#">Flip Hortizontal</a>
+                        </li>
+                </div>
                 </div>
             </div>
             <div class="image-text">Image</div>
@@ -620,6 +647,32 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="confirmNewModal" tabindex="-1" role="dialog" aria-labelledby="confirmNewModal"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" ></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Do you want to save your work?</h5>
+                                <p class="card-text">There are unsaved changes in "Untitled".</p>
+                        </div>
+                    </div>
+                </div>  
+                <div class="modal-footer btn-modal">
+                 
+                    <button type="button" class="btn btn-primary save" data-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-cancel" id="newCanvas" data-dismiss="modal">Don't save</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+        </div>  
     <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModal"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

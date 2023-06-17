@@ -544,7 +544,7 @@ const saveButtons = document.querySelectorAll(".save");
 saveButtons.forEach((item) => {
     item.addEventListener("click", () => {
         const link = document.createElement('a');
-        link.download = 'drawing.png';
+        link.download = 'untitled.png';
         link.href = canvas.toDataURL();
         link.click();
     }
@@ -558,7 +558,7 @@ saveAsPNG.addEventListener("click", function () {
 
     const blob = new Blob([image], { type: "image/png" });
 
-    const fileName = prompt("Enter a file name", "myImage.png");
+    const fileName = prompt("Enter a file name", "untitled.png");
 
     if (fileName != null) {
 
@@ -583,7 +583,7 @@ saveAsBMP.addEventListener("click", function () {
 
     const blob = new Blob([image], { type: "image/bmp" });
 
-    const fileName = prompt("Enter a file name", "myImage.bmp");
+    const fileName = prompt("Enter a file name", "untitled.bmp");
 
     if (fileName != null) {
 
@@ -608,7 +608,7 @@ saveAsJPEG.addEventListener("click", function () {
 
     const blob = new Blob([image], { type: "image/jpeg" });
 
-    const fileName = prompt("Enter a file name", "myImage.jpeg");
+    const fileName = prompt("Enter a file name", "untitled.jpeg");
 
     if (fileName != null) {
 
@@ -633,7 +633,7 @@ saveAsGIF.addEventListener("click", function () {
 
     const blob = new Blob([image], { type: "image/gif" });
 
-    const fileName = prompt("Enter a file name", "myImage.gif");
+    const fileName = prompt("Enter a file name", "untitled.gif");
 
     if (fileName != null) {
 
@@ -658,7 +658,7 @@ saveAsOther.addEventListener("click", function () {
 
     const blob = new Blob([image], { type: "image/png" });
 
-    const fileName = prompt("Enter a file name", "myImage.png");
+    const fileName = prompt("Enter a file name", "untitled.png");
 
     if (fileName != null) {
 
