@@ -26,7 +26,7 @@ let crayonDistance = 5;
 const openImage = document.getElementById('openImage');
 const imageLoader = document.getElementById('imageLoader');
 openImage.addEventListener('click', function () {
-    imageLoader.click(); 
+    imageLoader.click();
 });
 
 const magnifier = document.getElementById("magnifier")
@@ -48,7 +48,7 @@ const textBtn = document.getElementById("text")
 textBtn.addEventListener('click', () => {
     isText = true;
     document.body.insertAdjacentHTML('beforeend',
-    "<style>body{cursor: url('text.png'), auto;} </style>");
+        "<style>body{cursor: url('text.png'), auto;} </style>");
 })
 //Color picker
 
@@ -58,7 +58,7 @@ colorpickerBtn.addEventListener('click', () => {
     isColorpicker = toggleFocus();
 
     document.body.insertAdjacentHTML('beforeend',
-    "<style>body{cursor: url('colorpicker.png'), auto;} </style>");
+        "<style>body{cursor: url('colorpicker.png'), auto;} </style>");
 })
 // Tools
 let pencilBtn = document.querySelector("#pencil")
@@ -105,45 +105,45 @@ eraserBtn.addEventListener("click", () => {
 })
 
 // Magnifier
-canvas.addEventListener("click", function(event) {
-    if(isMagnifier) {
-        
-        const zoomDelta = event.deltaY > 0 ? 1/1.1 : 1.1;
+canvas.addEventListener("click", function (event) {
+    if (isMagnifier) {
+
+        const zoomDelta = event.deltaY > 0 ? 1 / 1.1 : 1.1;
         zoomLevel *= zoomDelta;
-        
+
         canvas.width = canvas.width * zoomLevel;
-        canvas.height = canvas.height * zoomLevel;    
+        canvas.height = canvas.height * zoomLevel;
         context.scale(zoomDelta, zoomDelta);
         context.scale(1 / zoomDelta, 1 / zoomDelta);
     }
-    if(isFill) {
+    if (isFill) {
 
         context.fillStyle = color;
         context.fillRect(0, 0, canvas.width, canvas.height);
     }
-    if(isText) {
+    if (isText) {
         const canvasRect = canvas.getBoundingClientRect();
         const x = event.clientX - canvasRect.left;
         const y = event.clientY - canvasRect.top;
 
-  
+
         const text = prompt("Enter text:");
 
-  
+
         if (text !== null && text !== "") {
             context.fillText(text, x, y + fontSize);
-  }
+        }
     }
-    if(isColorpicker) {
+    if (isColorpicker) {
         const canvasRect = canvas.getBoundingClientRect();
-  const x = event.clientX - canvasRect.left;
-  const y = event.clientY - canvasRect.top;
+        const x = event.clientX - canvasRect.left;
+        const y = event.clientY - canvasRect.top;
 
-  const imageData = context.getImageData(x, y, 1, 1);
-   color = rgbToHex(imageData.data[0], imageData.data[1], imageData.data[2]);
-   console.log(color);
-   isColorpicker = false;
-   pencilBtn.click();
+        const imageData = context.getImageData(x, y, 1, 1);
+        color = rgbToHex(imageData.data[0], imageData.data[1], imageData.data[2]);
+        console.log(color);
+        isColorpicker = false;
+        pencilBtn.click();
     }
 });
 function rgbToHex(r, g, b) {
@@ -230,24 +230,24 @@ function drawRulers() {
     if (!showRuler) {
         toggleRulerButton.classList.remove('view-active')
         context.clearRect(rulerSize + 1, 0, canvas.width - rulerSize - 0.5, rulerSize + 1);
-        context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5); 
+        context.clearRect(0, rulerSize + 1, rulerSize + 1, canvas.height - rulerSize - 0.5);
         return
     }
     toggleRulerButton.classList.add('view-active')
     context.beginPath();
     context.strokeStyle = rulerColor;
 
-   
+
     context.moveTo(rulerSize + 0.5, 0);
     context.lineTo(rulerSize + 0.5, canvas.height);
     context.stroke();
 
-   
+
     context.moveTo(0, rulerSize + 0.5);
     context.lineTo(canvas.width, rulerSize + 0.5);
     context.stroke();
 
-   
+
     context.font = rulerFont;
     context.fillStyle = rulerColor;
     context.textAlign = 'center';
@@ -266,13 +266,13 @@ function drawRulers() {
 }
 
 function toggleRuler() {
-    showRuler = !showRuler; 
-    drawRulers(); 
+    showRuler = !showRuler;
+    drawRulers();
 }
 
 
 const toggleRulerButton = document.getElementById('toggle-ruler');
-toggleRulerButton.addEventListener('click', toggleRuler); 
+toggleRulerButton.addEventListener('click', toggleRuler);
 //Undo - Redo
 const undoButton = document.getElementById('undoBtn');
 const redoButton = document.getElementById('redoBtn');
@@ -367,7 +367,7 @@ canvas.addEventListener("mousedown", (event) => {
         // }
         else if (currentBrush == "airBrush") {
             let airbrushShape = createAirbrushShape(brushSize);
-        
+
             for (var i = 0; i < airbrushShape.length; i++) {
                 let offsetX = airbrushShape[i][0];
                 let offsetY = airbrushShape[i][1];
@@ -393,14 +393,14 @@ canvas.addEventListener("mousedown", (event) => {
         }
         else if (currentBrush == "oilBrush") {
             oilBrushPoints.push({
-              x: event.clientX - canvas.offsetLeft,
-              y: event.clientY - canvas.offsetTop
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
             });
-          }
-          else if (currentBrush == "crayon") {
+        }
+        else if (currentBrush == "crayon") {
             crayonPoints.push({
-              x: event.clientX - canvas.offsetLeft,
-              y: event.clientY - canvas.offsetTop
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
             });
         }
         else if (currentBrush == "marker") {
@@ -529,8 +529,8 @@ canvas.addEventListener("mousemove", (event) => {
         else if (currentBrush == "oilBrush") {
             // console.log('oil');
             oilBrushPoints.push({
-              x: event.clientX - canvas.offsetLeft,
-              y: event.clientY - canvas.offsetTop
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
             });
 
 
@@ -541,44 +541,44 @@ canvas.addEventListener("mousemove", (event) => {
             context.beginPath();
             context.moveTo(oilBrushPoints[0].x, oilBrushPoints[0].y);
             for (var i = 1; i < oilBrushPoints.length; i++) {
-              var point1 = oilBrushPoints[i - 1];
-              var point2 = oilBrushPoints[i];
-              var distance = Math.sqrt(
-                Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
-              );
-              var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
-              var radius = brushSize / 2;
-              for (var j = 0; j < distance; j++) {
-                 x = point1.x + Math.sin(angle) * j * radius;
-                 y = point1.y + Math.cos(angle) * j * radius;
-                context.lineTo(x, y);
-              }
+                var point1 = oilBrushPoints[i - 1];
+                var point2 = oilBrushPoints[i];
+                var distance = Math.sqrt(
+                    Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
+                );
+                var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+                var radius = brushSize / 2;
+                for (var j = 0; j < distance; j++) {
+                    x = point1.x + Math.sin(angle) * j * radius;
+                    y = point1.y + Math.cos(angle) * j * radius;
+                    context.lineTo(x, y);
+                }
             }
             context.stroke();
-          }
+        }
 
         else if (currentBrush == "crayon") {
             crayonPoints.push({
-              x: event.clientX - canvas.offsetLeft,
-              y: event.clientY - canvas.offsetTop
+                x: event.clientX - canvas.offsetLeft,
+                y: event.clientY - canvas.offsetTop
             });
-            
-        
+
+
             // Vẽ Crayon
             context.strokeStyle = color;
-    context.lineCap = "round";
-    context.lineWidth = brushSize;
-    context.globalAlpha = crayonOpacity;
-    context.beginPath();
-    var splinePoints = getCurvePoints(crayonPoints);
-    context.moveTo(splinePoints[0].x, splinePoints[0].y);
-    for (var i = 1; i < splinePoints.length; i++) {
-      var point = splinePoints[i];
-      context.lineTo(point.x, point.y);
-    }
-    context.stroke();
-          }
-          else if (currentBrush == "marker") {
+            context.lineCap = "round";
+            context.lineWidth = brushSize;
+            context.globalAlpha = crayonOpacity;
+            context.beginPath();
+            var splinePoints = getCurvePoints(crayonPoints);
+            context.moveTo(splinePoints[0].x, splinePoints[0].y);
+            for (var i = 1; i < splinePoints.length; i++) {
+                var point = splinePoints[i];
+                context.lineTo(point.x, point.y);
+            }
+            context.stroke();
+        }
+        else if (currentBrush == "marker") {
             context.beginPath();
             context.fillStyle = color;
             context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
@@ -606,7 +606,7 @@ canvas.addEventListener("mousemove", (event) => {
 canvas.addEventListener("mouseup", (event) => {
 
     isMouseDown = false;
-  
+
     if (currentBrush == "calligraphyBrush") {
         calligraphyBrushPoints = [];
     }
@@ -615,10 +615,10 @@ canvas.addEventListener("mouseup", (event) => {
     }
     if (currentBrush == "oilBrush") {
         oilBrushPoints = [];
-      }
-      if (currentBrush == "crayon") {
+    }
+    if (currentBrush == "crayon") {
         crayonPoints = [];
-      }
+    }
 });
 
 function createAirbrushShape(size) {
@@ -883,7 +883,7 @@ fullscreenBtn.addEventListener('click', function (event) {
 });
 
 const brushItems = document.querySelectorAll(".brush-item");
-brushItems.forEach( (item ) => {
+brushItems.forEach((item) => {
     item.addEventListener('click', (e) => {
         currentBrush = item.id;
     })
@@ -894,8 +894,8 @@ sizeItems.forEach((item) => {
     item.addEventListener('click', (e) => {
         brushSize = item.getAttribute("value");
         item.classList.add('size-focus')
-        sizeItems.forEach((otherItem) =>{
-            if(item != otherItem)
+        sizeItems.forEach((otherItem) => {
+            if (item != otherItem)
                 otherItem.classList.remove('size-focus')
         })
     })
@@ -904,84 +904,84 @@ function getCurvePoints(points) {
     var curvePoints = [];
     var tDelta = 0.1;
     for (var t = 0; t <= 1; t += tDelta) {
-      var x = 0;
-      var y = 0;
-      var n = points.length - 1;
-      for (var i = 0; i <= n; i++) {
-        var b = binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
-        x += points[i].x * b;
-        y += points[i].y * b;
-      }
-      curvePoints.push({x: x, y: y});
+        var x = 0;
+        var y = 0;
+        var n = points.length - 1;
+        for (var i = 0; i <= n; i++) {
+            var b = binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
+            x += points[i].x * b;
+            y += points[i].y * b;
+        }
+        curvePoints.push({ x: x, y: y });
     }
     curvePoints.push(points[points.length - 1]);
     return curvePoints;
-  }
-  
-  function binomialCoefficient(n, k) {
+}
+
+function binomialCoefficient(n, k) {
     var coeff = 1;
     for (var i = n - k + 1; i <= n; i++) {
-      coeff *= i;
+        coeff *= i;
     }
     for (var i = 1; i <= k; i++) {
-      coeff /= i;
+        coeff /= i;
     }
     return coeff;
-  }
+}
 
-  //Rotate
+//Rotate
 
 function rotateCanvas(canvas, degrees) {
     const radians = degrees * Math.PI / 180;
     const imageWidth = canvas.width;
     const imageHeight = canvas.height;
-  
+
     let rotatedCanvas;
     if (degrees === 90 || degrees === -90) {
-      rotatedCanvas = document.createElement('canvas');
-      rotatedCanvas.width = imageHeight;
-      rotatedCanvas.height = imageWidth;
+        rotatedCanvas = document.createElement('canvas');
+        rotatedCanvas.width = imageHeight;
+        rotatedCanvas.height = imageWidth;
     } else {
-      rotatedCanvas = document.createElement('canvas');
-      rotatedCanvas.width = imageWidth;
-      rotatedCanvas.height = imageHeight;
+        rotatedCanvas = document.createElement('canvas');
+        rotatedCanvas.width = imageWidth;
+        rotatedCanvas.height = imageHeight;
     }
-  
-    const rotatedContext = rotatedCanvas.getContext('2d');
-  
-    if (degrees === 90) {
-      rotatedContext.translate(rotatedCanvas.width, 0);
-      rotatedContext.rotate(radians);
-    } else if (degrees === -90) {
-      rotatedContext.translate(0, rotatedCanvas.width);
-      rotatedContext.rotate(radians);
-    } else if (degrees === 180) {
-      rotatedContext.translate(rotatedCanvas.width, 0);
-      rotatedContext.scale(-1, 1);
-    }
-  
-    rotatedContext.drawImage(canvas, 0, 0);
-  
-    return rotatedCanvas;
-  }
 
-  document.getElementById("rotateRight90").addEventListener("click", function() {
-   
+    const rotatedContext = rotatedCanvas.getContext('2d');
+
+    if (degrees === 90) {
+        rotatedContext.translate(rotatedCanvas.width, 0);
+        rotatedContext.rotate(radians);
+    } else if (degrees === -90) {
+        rotatedContext.translate(0, rotatedCanvas.width);
+        rotatedContext.rotate(radians);
+    } else if (degrees === 180) {
+        rotatedContext.translate(rotatedCanvas.width, 0);
+        rotatedContext.scale(-1, 1);
+    }
+
+    rotatedContext.drawImage(canvas, 0, 0);
+
+    return rotatedCanvas;
+}
+
+document.getElementById("rotateRight90").addEventListener("click", function () {
+
     const rotatedCanvas = rotateCanvas(canvas, 90);
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(rotatedCanvas, 0, 0)
-  });
-  
-  document.getElementById("rotateLeft90").addEventListener("click", function() {
+});
+
+document.getElementById("rotateLeft90").addEventListener("click", function () {
     const rotatedCanvas = rotateCanvas(canvas, -90)
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(rotatedCanvas, 0, 0)
-  });
-  document.getElementById("rotate180").addEventListener("click", function() {
+});
+document.getElementById("rotate180").addEventListener("click", function () {
     const rotatedCanvas = rotateCanvas(canvas, 180);
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(rotatedCanvas, 0, 0)
-  });
+});
 //flip
 function flipCanvas(canvas, direction) {
     const flipedCanvas = document.createElement('canvas');
@@ -990,24 +990,63 @@ function flipCanvas(canvas, direction) {
     flipedCanvas.height = canvas.height
 
     if (direction === 'horizontal') {
-      flipedContext.scale(-1, 1);
-      flipedContext.drawImage(canvas, -canvas.width, 0, canvas.width, canvas.height);
+        flipedContext.scale(-1, 1);
+        flipedContext.drawImage(canvas, -canvas.width, 0, canvas.width, canvas.height);
     } else if (direction === 'vertical') {
-      flipedContext.scale(1, -1);
-      flipedContext.drawImage(canvas, 0, -canvas.height, canvas.width, canvas.height);
+        flipedContext.scale(1, -1);
+        flipedContext.drawImage(canvas, 0, -canvas.height, canvas.width, canvas.height);
     }
-  
+
     return flipedCanvas;
-  }
-  document.getElementById("flipVertical").addEventListener("click", function() {
-   
+}
+document.getElementById("flipVertical").addEventListener("click", function () {
+
     const flipedCanvas = flipCanvas(canvas, "vertical");
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(flipedCanvas, 0, 0)
-  });
-  document.getElementById("flipHorizontal").addEventListener("click", function() {
-   
+});
+document.getElementById("flipHorizontal").addEventListener("click", function () {
+
     const flipedCanvas = flipCanvas(canvas, "horizontal");
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(flipedCanvas, 0, 0)
+});
+
+
+//Hotkey section
+const confirmModal = document.getElementById("confirmNewModal")
+document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'b') {
+      event.preventDefault(); 
+     
+    }
+    if (event.ctrlKey && event.key === 's') {
+        event.preventDefault(); 
+        $('.save').click();
+      }
+      if (event.ctrlKey && event.key === 'o') {
+        event.preventDefault(); 
+        $('#openImage').click();
+      }
+      
+      if (event.ctrlKey && event.key === 'i') {
+        event.preventDefault(); 
+        $('#imgpropertiesModal').modal();
+      }
+      if (event.ctrlKey && event.key === 'r') {
+        event.preventDefault(); 
+        $('#toggle-ruler').click();
+      }
+      if (event.ctrlKey && event.key === 'g') {
+        event.preventDefault(); 
+        $('#toggleGrid').click();
+      }
+      if (event.ctrlKey && event.key === 'z') {
+        event.preventDefault(); 
+        $('#undoBtn').click();
+      }
+      if (event.ctrlKey && event.key === 'y') {
+        event.preventDefault(); 
+        $('#redoBtn').click();
+      }
   });

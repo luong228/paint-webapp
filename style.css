@@ -131,6 +131,13 @@ a {
     box-shadow: 1px 5px 10px grey;
     border: none;
 }
+.hotkey-item {
+    display: flex;
+    justify-content: space-between;
+}
+.hotkey {
+   opacity: 0.8;
+}
 .clipboard-btn,
 .image-btn,
 .toolbar-btn,
