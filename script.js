@@ -1,6 +1,51 @@
+
+// Get element
 const canvas = document.getElementById("canvas-area");
+const openImage = document.getElementById('openImage');
+const imageLoader = document.getElementById('imageLoader');
+const magnifier = document.getElementById("magnifier")
+const fillBtn = document.getElementById("fill")
+const textBtn = document.getElementById("text")
+const colorpickerBtn = document.getElementById("color-picker")
+const shapeFill = document.getElementById("shape-fill")
+const eraserBtn = document.getElementById("eraser")
+const toggleGridLink = document.getElementById('toggleGrid');
+const toggleRulerButton = document.getElementById('toggle-ruler');
+const undoButton = document.getElementById('undoBtn');
+const redoButton = document.getElementById('redoBtn');
+const dataUrl = document.getElementById("canvas-area").toDataURL();
+const canvasSizeSpan = document.getElementById('canvas-size');
+const mousePositionSpan = document.getElementById('mouse-position');
+const colorSpan = document.getElementById('color');
+const toggleStatusBarLink = document.getElementById('toggle-status-bar');
+const statusBar = document.getElementById('status-bar');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const confirmModal = document.getElementById("confirmNewModal")
+
+//Query
+const shapeBtns = document.querySelectorAll(".shape")
+const pencilBtn = document.querySelector("#pencil")
+const btnsFocus = document.querySelectorAll('.btn-focus');
+const saveButtons = document.querySelectorAll(".save");
+const saveAsPNG = document.querySelector("#saveAsPNG");
+const saveAsBMP = document.querySelector("#saveAsBMP");
+const saveAsJPEG = document.querySelector("#saveAsJPEG");
+const saveAsGIF = document.querySelector("#saveAsGIF");
+const saveAsOther = document.querySelector("#saveAsOther");
+const newBtn = document.querySelector("#newCanvas")
+const printBtn = document.querySelector("#printBtn");
+const brushItems = document.querySelectorAll(".brush-item");
+const sizeItems = document.querySelectorAll(".size-item")
+const colorBtns = document.querySelectorAll(".colors-btn .option");
+const primaryColor = document.querySelector(".primary-color1")
+
 const context = canvas.getContext("2d");
 context.canvas.willReadFrequently = true;
+
+//Shapes
+let currentShape = null
+let isDrawingShape = false;
+let prevMouseX, prevMouseY, snapshot
 
 let isDrawing = true;
 let isErasing = false;
@@ -11,7 +56,7 @@ let isText = false;
 let isColorpicker = false;
 let zoomLevel = 1;
 let color = "black";
-const fontSize = 14;
+let fontSize = 14;
 context.font = `${fontSize}px Arial`;
 //brush
 let brushSize = 2;
@@ -21,16 +66,8 @@ let calligraphyPenPoints = [];
 let oilBrushPoints = [];
 let oilBrushOpacity = 0.5;
 let crayonOpacity = 0.5;
-
 let crayonPoints = [];
 let crayonDistance = 5;
-
-//Shapes
-let shapeFill = document.getElementById("shape-fill")
-let currentShape = null
-let isDrawingShape = false;
-let prevMouseX, prevMouseY, snapshot
-const shapeBtns = document.querySelectorAll(".shape")
 
 shapeBtns.forEach(shape => {
     shape.addEventListener('click', (e) => {
@@ -42,13 +79,12 @@ shapeBtns.forEach(shape => {
 shapeFill.addEventListener('click', () => {
     shapeFill.classList.toggle("selected")
 })
-const openImage = document.getElementById('openImage');
-const imageLoader = document.getElementById('imageLoader');
+
 openImage.addEventListener('click', function () {
     imageLoader.click();
 });
 
-const magnifier = document.getElementById("magnifier")
+
 magnifier.addEventListener('click', () => {
     isMagnifier = true;
     document.body.insertAdjacentHTML('beforeend',
@@ -56,22 +92,20 @@ magnifier.addEventListener('click', () => {
 })
 
 //Fill
-const fillBtn = document.getElementById("fill")
 fillBtn.addEventListener('click', () => {
     isFill = true;
     document.body.insertAdjacentHTML('beforeend',
         "<style>body{cursor: url('fill.svg'), auto;} </style>");
 })
+
 //Text
-const textBtn = document.getElementById("text")
 textBtn.addEventListener('click', () => {
     isText = true;
     document.body.insertAdjacentHTML('beforeend',
         "<style>body{cursor: url('text.png'), auto;} </style>");
 })
-//Color picker
 
-const colorpickerBtn = document.getElementById("color-picker")
+//Color picker
 colorpickerBtn.addEventListener('click', () => {
 
     isColorpicker = toggleFocus();
@@ -79,11 +113,9 @@ colorpickerBtn.addEventListener('click', () => {
     document.body.insertAdjacentHTML('beforeend',
         "<style>body{cursor: url('colorpicker.png'), auto;} </style>");
 })
-// Tools
-let pencilBtn = document.querySelector("#pencil")
-pencilBtn.classList.add("btn-focus_focus")
-let btnsFocus = document.querySelectorAll('.btn-focus');
 
+// Tools
+pencilBtn.classList.add("btn-focus_focus")
 btnsFocus.forEach(function (button) {
     button.addEventListener("click", function () {
         button.classList.add("btn-focus_focus")
@@ -93,7 +125,6 @@ btnsFocus.forEach(function (button) {
             }
         })
     });
-
 });
 
 const toggleFocus = () => {
@@ -117,7 +148,7 @@ pencilBtn.addEventListener("click", () => {
         "<style>body{cursor: url('pencil.svg'), auto;} </style>");
     this.focus();
 })
-const eraserBtn = document.getElementById("eraser")
+
 eraserBtn.addEventListener("click", () => {
     isErasing = toggleFocus()
 
@@ -129,7 +160,6 @@ eraserBtn.addEventListener("click", () => {
 // Magnifier
 canvas.addEventListener("click", function (event) {
     if (isMagnifier) {
-
         const zoomDelta = event.deltaY > 0 ? 1 / 1.1 : 1.1;
         zoomLevel *= zoomDelta;
 
@@ -147,10 +177,7 @@ canvas.addEventListener("click", function (event) {
         const canvasRect = canvas.getBoundingClientRect();
         const x = event.clientX - canvasRect.left;
         const y = event.clientY - canvasRect.top;
-
-
         const text = prompt("Enter text:");
-
 
         if (text !== null && text !== "") {
             context.fillStyle = color;
@@ -165,7 +192,6 @@ canvas.addEventListener("click", function (event) {
         const imageData = context.getImageData(x, y, 1, 1);
         color = rgbToHex(imageData.data[0], imageData.data[1], imageData.data[2]);
 
-        const primaryColor = document.querySelector(".primary-color1")
         console.log(color);
         primaryColor.style.backgroundColor = color;
         if (color == 'rgb(255, 255, 255)')
@@ -245,7 +271,7 @@ image.onload = function () {
     redraw();
 }
 
-const toggleGridLink = document.getElementById('toggleGrid');
+
 toggleGridLink.addEventListener('click', function (e) {
     e.preventDefault();
     image.src = canvas.toDataURL();
@@ -270,16 +296,13 @@ function drawRulers() {
     context.beginPath();
     context.strokeStyle = rulerColor;
 
-
     context.moveTo(rulerSize + 0.5, 0);
     context.lineTo(rulerSize + 0.5, canvas.height);
     context.stroke();
 
-
     context.moveTo(0, rulerSize + 0.5);
     context.lineTo(canvas.width, rulerSize + 0.5);
     context.stroke();
-
 
     context.font = rulerFont;
     context.fillStyle = rulerColor;
@@ -303,12 +326,10 @@ function toggleRuler() {
     drawRulers();
 }
 
-
-const toggleRulerButton = document.getElementById('toggle-ruler');
 toggleRulerButton.addEventListener('click', toggleRuler);
 //Undo - Redo
-const undoButton = document.getElementById('undoBtn');
-const redoButton = document.getElementById('redoBtn');
+
+
 const history = [];
 let currentState = null;
 let currentStateIndex = -1;
@@ -370,9 +391,6 @@ updateButtons();
 
 
 
-// document.getElementById("color").addEventListener("click", () => {
-//     color = prompt("Enter a color:");
-// })
 
 canvas.addEventListener("mousedown", (event) => {
     var x = event.clientX - canvas.offsetLeft;
@@ -449,7 +467,7 @@ canvas.addEventListener("mousedown", (event) => {
         context.strokeStyle = color;
         context.stroke();
     }
-    if (isDrawingShape) {
+    else if (isDrawingShape) {
         prevMouseX = event.offsetX;
         prevMouseY = event.offsetY;
         context.beginPath();
@@ -458,7 +476,7 @@ canvas.addEventListener("mousedown", (event) => {
         context.fillStyle = color;
         snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
     }
-    if (isErasing) {
+    else if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
     }
     isMouseDown = true;
@@ -528,8 +546,6 @@ canvas.addEventListener("mousemove", (event) => {
                 x: event.clientX - canvas.offsetLeft,
                 y: event.clientY - canvas.offsetTop
             });
-
-
             context.strokeStyle = "black";
             context.lineCap = "round";
             context.lineJoin = "round";
@@ -555,7 +571,6 @@ canvas.addEventListener("mousemove", (event) => {
                 x: event.clientX - canvas.offsetLeft,
                 y: event.clientY - canvas.offsetTop
             });
-
 
             context.strokeStyle = color;
             context.lineCap = "round";
@@ -586,7 +601,6 @@ canvas.addEventListener("mousemove", (event) => {
                 y: event.clientY - canvas.offsetTop
             });
 
-
             // Vẽ Crayon
             context.strokeStyle = color;
             context.lineCap = "round";
@@ -606,7 +620,7 @@ canvas.addEventListener("mousemove", (event) => {
             context.fillStyle = color;
             context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
             context.fill();
-            context.lineWidth = 2;
+            context.lineWidth = brushSize;
         }
         else if (currentBrush == "naturalPencil") {
             context.lineTo(x, y);
@@ -944,8 +958,7 @@ canvas.addEventListener("mousemove", (event) => {
             context.lineTo(centerX, centerY + height);
             context.closePath();
           
-            if(shapeFill.classList.contains("selected")) {
-                
+            if(shapeFill.classList.contains("selected")) {    
                 context.fill();
                 context.stroke();
             }
@@ -1038,7 +1051,6 @@ canvas.addEventListener("mousemove", (event) => {
             context.closePath();
           
             if(shapeFill.classList.contains("selected")) {
-                
                 context.fill();
                 context.stroke();
             }
@@ -1047,7 +1059,7 @@ canvas.addEventListener("mousemove", (event) => {
             }
           }
     }
-    if (isErasing) {
+    else if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
     }
 });
@@ -1088,7 +1100,7 @@ function createAirbrushShape(size) {
     return shape;
 }
 // Menu 
-const saveButtons = document.querySelectorAll(".save");
+
 
 saveButtons.forEach((item) => {
     item.addEventListener("click", () => {
@@ -1100,7 +1112,7 @@ saveButtons.forEach((item) => {
     )
 })
 
-const saveAsPNG = document.querySelector("#saveAsPNG");
+
 saveAsPNG.addEventListener("click", function () {
 
     const image = canvas.toDataURL("image/png");
@@ -1125,7 +1137,7 @@ saveAsPNG.addEventListener("click", function () {
         }, 0);
     }
 });
-const saveAsBMP = document.querySelector("#saveAsBMP");
+
 saveAsBMP.addEventListener("click", function () {
 
     const image = canvas.toDataURL("image/bmp");
@@ -1150,7 +1162,7 @@ saveAsBMP.addEventListener("click", function () {
         }, 0);
     }
 });
-const saveAsJPEG = document.querySelector("#saveAsJPEG");
+
 saveAsJPEG.addEventListener("click", function () {
 
     const image = canvas.toDataURL("image/jpeg");
@@ -1175,7 +1187,7 @@ saveAsJPEG.addEventListener("click", function () {
         }, 0);
     }
 });
-const saveAsGIF = document.querySelector("#saveAsGIF");
+
 saveAsGIF.addEventListener("click", function () {
 
     const image = canvas.toDataURL("image/gif");
@@ -1200,7 +1212,7 @@ saveAsGIF.addEventListener("click", function () {
         }, 0);
     }
 });
-const saveAsOther = document.querySelector("#saveAsOther");
+
 saveAsOther.addEventListener("click", function () {
 
     const image = canvas.toDataURL("image/png");
@@ -1225,12 +1237,12 @@ saveAsOther.addEventListener("click", function () {
         }, 0);
     }
 });
-const newBtn = document.querySelector("#newCanvas")
+
 newBtn.addEventListener("click", () => {
     context.clearRect(0, 0, canvas.width, canvas.height);
 })
 function printCanvas() {
-    const dataUrl = document.getElementById("canvas-area").toDataURL();
+    
     let windowContent = '<!DOCTYPE html><html><head><title>Print</title></head><body><img src="' + dataUrl + '"></body></html>';
     const printWin = window.open("", "", "width=" + screen.availWidth + ",height=" + screen.availHeight);
     printWin.document.open();
@@ -1244,15 +1256,9 @@ function printCanvas() {
         }, 901);
     }, true);
 }
-const printBtn = document.querySelector("#printBtn");
-printBtn.addEventListener("click", printCanvas)
-//   document.getElementsByClassName("undo").addEventListener("click", function() {
-//     // undo
-// });
 
-// document.getElementsByClassName("redo").addEventListener("click", function() {
-//     // redo
-// });
+printBtn.addEventListener("click", printCanvas)
+
 $('.dropdown-menu a.dropdown-toggle').on('click', function (e) {
     if (!$(this).next().hasClass('show')) {
         $(this).parents('.dropdown-menu').first().find('.show').removeClass('show');
@@ -1270,11 +1276,11 @@ $('.dropdown-menu a.dropdown-toggle').on('click', function (e) {
 });
 
 // status bar
-const canvasSizeSpan = document.getElementById('canvas-size');
-const mousePositionSpan = document.getElementById('mouse-position');
-const colorSpan = document.getElementById('color');
-const toggleStatusBarLink = document.getElementById('toggle-status-bar');
-const statusBar = document.getElementById('status-bar');
+
+
+
+
+
 
 function updateStatusBar() {
     const canvasWidth = canvas.width;
@@ -1296,7 +1302,7 @@ toggleStatusBarLink.addEventListener('click', function () {
 });
 
 //fullscreen
-const fullscreenBtn = document.getElementById('fullscreenBtn');
+
 
 function requestFullscreen(element) {
     if (element.requestFullscreen) {
@@ -1331,14 +1337,14 @@ fullscreenBtn.addEventListener('click', function (event) {
     }
 });
 
-const brushItems = document.querySelectorAll(".brush-item");
+
 brushItems.forEach((item) => {
     item.addEventListener('click', (e) => {
         currentBrush = item.id;
     })
 })
 
-const sizeItems = document.querySelectorAll(".size-item")
+
 sizeItems.forEach((item) => {
     item.addEventListener('click', (e) => {
         brushSize = item.getAttribute("value");
@@ -1463,11 +1469,11 @@ document.getElementById("flipHorizontal").addEventListener("click", function () 
 
 
 //Hotkey section
-const confirmModal = document.getElementById("confirmNewModal")
+
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'b') {
         event.preventDefault();
-
+        $('#confirmNewModal').modal();
     }
     if (event.ctrlKey && event.key === 's') {
         event.preventDefault();
@@ -1502,13 +1508,13 @@ document.addEventListener('keydown', (event) => {
 
 //colors
 
-const colorBtns = document.querySelectorAll(".colors-btn .option");
+
 colorBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         // color =window.getComputedStyle(btn).getPropertyValue("fill")
 
         color = window.getComputedStyle(btn).getPropertyValue("background-color");
-        const primaryColor = document.querySelector(".primary-color1")
+        
         console.log(color);
         primaryColor.style.backgroundColor = color;
         if (color == 'rgb(255, 255, 255)')
