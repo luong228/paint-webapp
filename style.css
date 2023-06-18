@@ -88,6 +88,10 @@ a {
     display: flex;
     background-color: #f3f3f3;
 }
+.menu-button > .save {
+  border-right: 1.5px solid #eaeaea;
+  border-left: 1.5px solid #eaeaea;
+}
 .menu-button > button,
 .dropdown > button,
 .dropdown-menu {
@@ -464,4 +468,10 @@ ul {
   .option #color-picker{
     opacity: 0;
     cursor: pointer;
+  }
+  .shape-func .selected {
+    background-color: #40e0d0;
+  }
+  .shape-func button:focus{
+    outline: none;
   }

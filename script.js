@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas-area");
 const context = canvas.getContext("2d");
+context.canvas.willReadFrequently = true;
 
 let isDrawing = true;
 let isErasing = false;
@@ -24,6 +25,23 @@ let crayonOpacity = 0.5;
 let crayonPoints = [];
 let crayonDistance = 5;
 
+//Shapes
+let shapeFill = document.getElementById("shape-fill")
+let currentShape = null
+let isDrawingShape = false;
+let prevMouseX, prevMouseY, snapshot
+const shapeBtns = document.querySelectorAll(".shape")
+
+shapeBtns.forEach(shape => {
+    shape.addEventListener('click', (e) => {
+        isDrawingShape = toggleFocus();
+        currentShape = shape.id;
+    })
+})
+
+shapeFill.addEventListener('click', () => {
+    shapeFill.classList.toggle("selected")
+})
 const openImage = document.getElementById('openImage');
 const imageLoader = document.getElementById('imageLoader');
 openImage.addEventListener('click', function () {
@@ -86,6 +104,9 @@ const toggleFocus = () => {
     isFill = false;
     isText = false;
     isColorpicker = false;
+    isDrawingShape = false;
+    currentShape = null;
+
     return true;
 }
 //pencilbtn
@@ -147,7 +168,7 @@ canvas.addEventListener("click", function (event) {
         const primaryColor = document.querySelector(".primary-color1")
         console.log(color);
         primaryColor.style.backgroundColor = color;
-        if(color == 'rgb(255, 255, 255)')
+        if (color == 'rgb(255, 255, 255)')
             primaryColor.style.border = '1px solid #bfbfbf'
         else {
             primaryColor.style.border = 'none'
@@ -367,16 +388,6 @@ canvas.addEventListener("mousedown", (event) => {
             context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
             context.fill();
         }
-        //  else if (currentBrush === "square") {
-        //     context.fillRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
-        // } else if (currentBrush === "triangle") {
-        //     context.beginPath();
-        //     context.moveTo(x, y - brushSize / 2);
-        //     context.lineTo(x - brushSize / 2, y + brushSize / 2);
-        //     context.lineTo(x + brushSize / 2, y + brushSize / 2);
-        //     context.closePath();
-        //     context.fill();
-        // }
         else if (currentBrush == "airBrush") {
             let airbrushShape = createAirbrushShape(brushSize);
 
@@ -438,6 +449,15 @@ canvas.addEventListener("mousedown", (event) => {
         context.strokeStyle = color;
         context.stroke();
     }
+    if (isDrawingShape) {
+        prevMouseX = event.offsetX;
+        prevMouseY = event.offsetY;
+        context.beginPath();
+        context.lineWidth = brushSize;
+        context.strokeStyle = color;
+        context.fillStyle = color;
+        snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
+    }
     if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
     }
@@ -459,16 +479,7 @@ canvas.addEventListener("mousemove", (event) => {
             context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
             context.fill();
         }
-        //  else if (currentBrush === "square") {
-        //     context.fillRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
-        // } else if (currentBrush === "triangle") {
-        //     context.beginPath();
-        //     context.moveTo(x, y - brushSize / 2);
-        //     context.lineTo(x - brushSize / 2, y + brushSize / 2);
-        //     context.lineTo(x + brushSize / 2, y + brushSize / 2);
-        //     context.closePath();
-        //     context.fill();
-        // }
+
         else if (currentBrush == "airBrush") {
             let airbrushShape = createAirbrushShape(brushSize);
 
@@ -609,6 +620,432 @@ canvas.addEventListener("mousemove", (event) => {
         }
         context.strokeStyle = color;
         context.stroke();
+    }
+    else if (isDrawingShape) {
+        context.putImageData(snapshot, 0, 0);
+        if (currentShape == "rounded-square") {
+            if (!shapeFill.classList.contains("selected")) {
+                return context.strokeRect(event.offsetX, event.offsetY, prevMouseX - event.offsetX, prevMouseY - event.offsetY);
+            }
+            context.fillRect(event.offsetX, event.offsetY, prevMouseX - event.offsetX, prevMouseY - event.offsetY);
+        }
+        else if (currentShape == "circle") {
+            context.beginPath(); // creating new path to draw circle
+            // getting radius for circle according to the mouse pointer
+            let radius = Math.sqrt(Math.pow((prevMouseX - event.offsetX), 2) + Math.pow((prevMouseY - event.offsetY), 2));
+            context.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI); // creating circle according to the mouse pointer
+
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill circle else draw border circle
+
+        }
+        else if (currentShape == "triangle") {
+            context.beginPath(); // creating new path to draw circle
+            context.moveTo(prevMouseX, prevMouseY); // moving triangle to the mouse pointer
+            context.lineTo(event.offsetX, event.offsetY); // creating first line according to the mouse pointer
+            context.lineTo(prevMouseX * 2 - event.offsetX, event.offsetY); // creating bottom line of triangle
+            context.closePath(); // closing path of a triangle so the third line draw automatically
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill triangle else draw border
+        }
+        else if (currentShape == "line") {
+            context.beginPath(); // creating new path to draw diamond
+            context.moveTo(prevMouseX, prevMouseY); // starting point of diamond
+            context.lineTo(event.offsetX - (event.offsetX - prevMouseX) / 2, prevMouseY + (event.offsetY - prevMouseY) / 2);
+            context.lineTo(event.offsetX, event.offsetY);
+            context.lineTo(prevMouseX + (event.offsetX - prevMouseX) / 2, event.offsetY - (event.offsetY - prevMouseY) / 2);
+            context.closePath(); // closing path of diamond
+            context.stroke(); // if fillColor is checked fill diamond else draw border diamond
+        }
+        else if (currentShape == "heart") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let width = distanceX * 2;
+            let height = distanceY * 2;
+            let centerX = prevMouseX;
+            let centerY = prevMouseY - distanceY;
+
+            if (event.offsetX < prevMouseX) {
+                centerX = event.offsetX;
+            }
+            if (event.offsetY < prevMouseY) {
+                centerY = prevMouseY - height;
+            }
+
+            context.beginPath(); // creating new path to draw heart
+            context.moveTo(centerX, centerY + height / 4);
+            context.bezierCurveTo(centerX - width / 2, centerY - height / 2, centerX - width, centerY, centerX, centerY + height);
+            context.bezierCurveTo(centerX + width, centerY, centerX + width / 2, centerY - height / 2, centerX, centerY + height / 4);
+            context.closePath(); // closing path of heart
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill heart else draw border heart
+        }
+        else if (currentShape == "hexagon") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let radius = Math.max(distanceX, distanceY);
+            let height = radius * Math.sqrt(3);
+            let width = radius * 2;
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+
+            if (event.offsetX < prevMouseX) {
+                centerX = event.offsetX;
+            }
+            if (event.offsetY < prevMouseY) {
+                centerY = event.offsetY;
+            }
+
+            context.beginPath(); // creating new path to draw hexagon
+            context.moveTo(centerX + radius, centerY);
+            for (let i = 1; i <= 6; i++) {
+                let angle = i * Math.PI / 3;
+                let x = centerX + radius * Math.cos(angle);
+                let y = centerY + radius * Math.sin(angle);
+                context.lineTo(x, y);
+            }
+            context.closePath(); // closing path of hexagon
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill hexagon else draw border hexagon
+        }
+        else if (currentShape == "lightning") {
+            context.beginPath(); // creating new path to draw lightning
+            context.moveTo(prevMouseX, prevMouseY + 10);
+            context.lineTo(prevMouseX + 10, prevMouseY + 10);
+            context.lineTo(prevMouseX - 5, prevMouseY - 10);
+            context.lineTo(event.offsetX, event.offsetY - 10);
+            context.lineTo(event.offsetX - 10, event.offsetY - 20);
+            context.lineTo(prevMouseX + 5, prevMouseY + 20);
+            context.closePath(); // closing path of lightning
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill lightning else draw border lightning
+        }
+        else if (currentShape == "star") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let radius = Math.max(distanceX, distanceY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+
+            if (event.offsetX < prevMouseX) {
+                centerX = event.offsetX;
+            }
+            if (event.offsetY < prevMouseY) {
+                centerY = event.offsetY;
+            }
+
+            let points = 5;
+            let outerRadius = radius;
+            let innerRadius = radius / 2;
+            let rotation = Math.PI / 2 * 3;
+            let x = centerX;
+            let y = centerY;
+            let step = Math.PI / points;
+
+            context.beginPath(); // creating new path to draw star
+            context.moveTo(centerX, centerY - outerRadius);
+            for (let i = 0; i < points; i++) {
+                x = centerX + Math.cos(rotation) * outerRadius;
+                y = centerY + Math.sin(rotation) * outerRadius;
+                context.lineTo(x, y);
+                rotation += step;
+                x = centerX + Math.cos(rotation) * innerRadius;
+                y = centerY + Math.sin(rotation) * innerRadius;
+                context.lineTo(x, y);
+                rotation += step;
+            }
+            context.lineTo(centerX, centerY - outerRadius);
+            context.closePath(); // closing path of star
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill star else draw border star
+        }
+        else if (currentShape == "rectangle") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let size = Math.min(distanceX, distanceY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+        
+            if (event.offsetX < prevMouseX) {
+                centerX = event.offsetX;
+            }
+            if (event.offsetY < prevMouseY) {
+                centerY = event.offsetY;
+            }
+        
+            let radius = size / 4; // set radius to be 1/4 of the size for corners
+            let x = centerX - size / 2;
+            let y = centerY - size / 2;
+        
+            context.beginPath(); // creating new path to draw rounded square
+            context.moveTo(x + radius, y);
+            context.lineTo(x + size - radius, y);
+            context.arc(x + size - radius, y + radius, radius, -Math.PI / 2, 0);
+            context.lineTo(x + size, y + size - radius);
+            context.arc(x + size - radius, y + size - radius, radius, 0, Math.PI / 2);
+            context.lineTo(x + radius, y + size);
+            context.arc(x + radius, y + size - radius, radius, Math.PI / 2, Math.PI);
+            context.lineTo(x, y + radius);
+            context.arc(x + radius, y + radius, radius, Math.PI, -Math.PI / 2);
+            context.closePath(); // closing path of rounded square
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill rounded square else draw border rounded square
+        }
+        else if (currentShape == "right-triangle") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+        
+            if (event.offsetX < prevMouseX) {
+                centerX = event.offsetX;
+            }
+        
+            if (event.offsetY < prevMouseY) {
+                centerY = event.offsetY;
+            }
+        
+            let x1 = centerX;
+            let y1 = centerY;
+            let x2 = event.offsetX;
+            let y2 = centerY;
+            let x3 = centerX;
+            let y3 = event.offsetY;
+        
+            context.beginPath(); // creating new path to draw right triangle
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.lineTo(x3, y3);
+            context.closePath(); // closing path of right triangle
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill right triangle else draw border right triangle
+        }
+        else if (currentShape == "cloud") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX * 1.5;
+            let height = distanceY * 1.2;
+          
+            let radius = 20;
+          
+            context.beginPath();
+            context.moveTo(centerX + radius, centerY);
+            context.lineTo(centerX + width - radius, centerY);
+            context.quadraticCurveTo(centerX + width, centerY, centerX + width, centerY + radius);
+            context.lineTo(centerX + width, centerY + height - radius);
+            context.quadraticCurveTo(centerX + width, centerY + height, centerX + width - radius, centerY + height);
+            context.lineTo(centerX + radius, centerY + height);
+            context.quadraticCurveTo(centerX, centerY + height, centerX, centerY + height - radius);
+            context.lineTo(centerX, centerY + radius);
+            context.quadraticCurveTo(centerX, centerY, centerX + radius, centerY);
+            context.closePath();
+          
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke();
+          }
+          else if (currentShape == "right-arrow") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX * 1.2;
+            let height = distanceY;
+          
+            context.beginPath();
+            context.moveTo(centerX, centerY);
+            context.lineTo(centerX + width - height / 2, centerY);
+            context.lineTo(centerX + width - height / 2, centerY - height / 2);
+            context.lineTo(centerX + width, centerY);
+            context.lineTo(centerX + width - height / 2, centerY + height / 2);
+            context.lineTo(centerX + width - height / 2, centerY);
+            context.lineTo(centerX, centerY);
+            context.closePath();
+          
+            if(shapeFill.classList.contains("selected")) {
+                
+                context.fill();
+                context.stroke();
+            }
+            else {
+                context.stroke();
+            }
+          }
+          else if (currentShape == "left-arrow") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX * 1.2;
+            let height = distanceY;
+          
+            context.beginPath();
+            context.moveTo(centerX + width, centerY);
+            context.lineTo(centerX + height / 2, centerY);
+            context.lineTo(centerX + height / 2, centerY - height / 2);
+            context.lineTo(centerX, centerY);
+            context.lineTo(centerX + height / 2, centerY + height / 2);
+            context.lineTo(centerX + height / 2, centerY);
+            context.lineTo(centerX + width, centerY);
+            context.closePath();
+          
+            if(shapeFill.classList.contains("selected")) {
+                
+                context.fill();
+                context.stroke();
+            }
+            else {
+                context.stroke();
+            }
+          }
+          else if (currentShape == "top-arrow") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX;
+            let height = distanceY * 1.2;
+          
+            context.beginPath();
+            context.moveTo(centerX, centerY + height);
+            context.lineTo(centerX, centerY + height / 2);
+            context.lineTo(centerX - width / 2, centerY + height / 2);
+            context.lineTo(centerX, centerY);
+            context.lineTo(centerX + width / 2, centerY + height / 2);
+            context.lineTo(centerX, centerY + height / 2);
+            context.lineTo(centerX, centerY + height);
+            context.closePath();
+          
+            if(shapeFill.classList.contains("selected")) {
+                
+                context.fill();
+                context.stroke();
+            }
+            else {
+                context.stroke();
+            }
+          }
+          else if (currentShape == "bot-arrow") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX * 1.2;
+            let height = distanceY;
+          
+            context.beginPath();
+            context.moveTo(centerX, centerY);
+            context.lineTo(centerX - width / 2, centerY - height / 2);
+            context.lineTo(centerX - width / 2, centerY);
+            context.lineTo(centerX - width, centerY);
+            context.lineTo(centerX, centerY + height);
+            context.lineTo(centerX + width, centerY);
+            context.lineTo(centerX + width / 2, centerY);
+            context.lineTo(centerX + width / 2, centerY - height / 2);
+            context.lineTo(centerX, centerY);
+            context.closePath();
+          
+            if(shapeFill.classList.contains("selected")) {
+                
+                context.fill();
+                context.stroke();
+            }
+            else {
+                context.stroke();
+            }
+          }
+          else if (currentShape == "diamond") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX) / 2;
+            let distanceY = Math.abs(event.offsetY - prevMouseY) / 2;
+            let centerX = prevMouseX + distanceX;
+            let centerY = prevMouseY + distanceY;
+          
+            context.beginPath();
+            context.moveTo(centerX, centerY - distanceY);
+            context.lineTo(centerX - distanceX, centerY);
+            context.lineTo(centerX, centerY + distanceY);
+            context.lineTo(centerX + distanceX, centerY);
+            context.lineTo(centerX, centerY - distanceY);
+            context.closePath();
+          
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke();
+          }
+          else if (currentShape == "lightning") {
+            let distanceX = Math.abs(event.offsetX - prevMouseX);
+            let distanceY = Math.abs(event.offsetY - prevMouseY);
+            let centerX = prevMouseX;
+            let centerY = prevMouseY;
+          
+            if (event.offsetX < prevMouseX) {
+              centerX = event.offsetX;
+            }
+          
+            if (event.offsetY < prevMouseY) {
+              centerY = event.offsetY;
+            }
+          
+            let width = distanceX;
+            let height = distanceY * 1.5;
+          
+            context.beginPath();
+            context.moveTo(centerX, centerY + height);
+            context.lineTo(centerX + width / 2, centerY + height / 3);
+            context.lineTo(centerX + width / 4, centerY + height / 3);
+            context.lineTo(centerX + width / 4, centerY);
+            context.lineTo(centerX + width, centerY - height / 3);
+            context.lineTo(centerX - width / 2, centerY - height / 3);
+            context.lineTo(centerX - width / 4, centerY - height / 3);
+            context.lineTo(centerX - width / 4, centerY);
+            context.lineTo(centerX - width, centerY + height / 3);
+            context.lineTo(centerX, centerY + height);
+            context.closePath();
+          
+            if(shapeFill.classList.contains("selected")) {
+                
+                context.fill();
+                context.stroke();
+            }
+            else {
+                context.stroke();
+            }
+          }
     }
     if (isErasing) {
         context.clearRect(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop, 15, 15)
@@ -1029,55 +1466,55 @@ document.getElementById("flipHorizontal").addEventListener("click", function () 
 const confirmModal = document.getElementById("confirmNewModal")
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'b') {
-      event.preventDefault(); 
-     
+        event.preventDefault();
+
     }
     if (event.ctrlKey && event.key === 's') {
-        event.preventDefault(); 
+        event.preventDefault();
         $('.save').click();
-      }
-      if (event.ctrlKey && event.key === 'o') {
-        event.preventDefault(); 
+    }
+    if (event.ctrlKey && event.key === 'o') {
+        event.preventDefault();
         $('#openImage').click();
-      }
-      
-      if (event.ctrlKey && event.key === 'i') {
-        event.preventDefault(); 
+    }
+
+    if (event.ctrlKey && event.key === 'i') {
+        event.preventDefault();
         $('#imgpropertiesModal').modal();
-      }
-      if (event.ctrlKey && event.key === 'r') {
-        event.preventDefault(); 
+    }
+    if (event.ctrlKey && event.key === 'r') {
+        event.preventDefault();
         $('#toggle-ruler').click();
-      }
-      if (event.ctrlKey && event.key === 'g') {
-        event.preventDefault(); 
+    }
+    if (event.ctrlKey && event.key === 'g') {
+        event.preventDefault();
         $('#toggleGrid').click();
-      }
-      if (event.ctrlKey && event.key === 'z') {
-        event.preventDefault(); 
+    }
+    if (event.ctrlKey && event.key === 'z') {
+        event.preventDefault();
         $('#undoBtn').click();
-      }
-      if (event.ctrlKey && event.key === 'y') {
-        event.preventDefault(); 
+    }
+    if (event.ctrlKey && event.key === 'y') {
+        event.preventDefault();
         $('#redoBtn').click();
-      }
-  });
+    }
+});
 
-  //colors
+//colors
 
-  const colorBtns = document.querySelectorAll(".colors-btn .option");
-  colorBtns.forEach(btn => {
+const colorBtns = document.querySelectorAll(".colors-btn .option");
+colorBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         // color =window.getComputedStyle(btn).getPropertyValue("fill")
-        
+
         color = window.getComputedStyle(btn).getPropertyValue("background-color");
         const primaryColor = document.querySelector(".primary-color1")
         console.log(color);
         primaryColor.style.backgroundColor = color;
-        if(color == 'rgb(255, 255, 255)')
+        if (color == 'rgb(255, 255, 255)')
             primaryColor.style.border = '1px solid #bfbfbf'
         else {
             primaryColor.style.border = 'none'
         }
     })
-  })
+})
