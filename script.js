@@ -630,30 +630,30 @@ canvas.addEventListener("mousemove", (event) => {
             context.fillRect(event.offsetX, event.offsetY, prevMouseX - event.offsetX, prevMouseY - event.offsetY);
         }
         else if (currentShape == "circle") {
-            context.beginPath(); // creating new path to draw circle
-            // getting radius for circle according to the mouse pointer
+            context.beginPath(); 
+            
             let radius = Math.sqrt(Math.pow((prevMouseX - event.offsetX), 2) + Math.pow((prevMouseY - event.offsetY), 2));
-            context.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI); // creating circle according to the mouse pointer
+            context.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI); 
 
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill circle else draw border circle
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
 
         }
         else if (currentShape == "triangle") {
-            context.beginPath(); // creating new path to draw circle
-            context.moveTo(prevMouseX, prevMouseY); // moving triangle to the mouse pointer
-            context.lineTo(event.offsetX, event.offsetY); // creating first line according to the mouse pointer
-            context.lineTo(prevMouseX * 2 - event.offsetX, event.offsetY); // creating bottom line of triangle
-            context.closePath(); // closing path of a triangle so the third line draw automatically
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill triangle else draw border
+            context.beginPath(); 
+            context.moveTo(prevMouseX, prevMouseY); 
+            context.lineTo(event.offsetX, event.offsetY); 
+            context.lineTo(prevMouseX * 2 - event.offsetX, event.offsetY); 
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "line") {
-            context.beginPath(); // creating new path to draw diamond
-            context.moveTo(prevMouseX, prevMouseY); // starting point of diamond
+            context.beginPath(); 
+            context.moveTo(prevMouseX, prevMouseY); 
             context.lineTo(event.offsetX - (event.offsetX - prevMouseX) / 2, prevMouseY + (event.offsetY - prevMouseY) / 2);
             context.lineTo(event.offsetX, event.offsetY);
             context.lineTo(prevMouseX + (event.offsetX - prevMouseX) / 2, event.offsetY - (event.offsetY - prevMouseY) / 2);
-            context.closePath(); // closing path of diamond
-            context.stroke(); // if fillColor is checked fill diamond else draw border diamond
+            context.closePath(); 
+            context.stroke(); 
         }
         else if (currentShape == "heart") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
@@ -670,12 +670,12 @@ canvas.addEventListener("mousemove", (event) => {
                 centerY = prevMouseY - height;
             }
 
-            context.beginPath(); // creating new path to draw heart
+            context.beginPath(); 
             context.moveTo(centerX, centerY + height / 4);
             context.bezierCurveTo(centerX - width / 2, centerY - height / 2, centerX - width, centerY, centerX, centerY + height);
             context.bezierCurveTo(centerX + width, centerY, centerX + width / 2, centerY - height / 2, centerX, centerY + height / 4);
-            context.closePath(); // closing path of heart
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill heart else draw border heart
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "hexagon") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
@@ -693,7 +693,7 @@ canvas.addEventListener("mousemove", (event) => {
                 centerY = event.offsetY;
             }
 
-            context.beginPath(); // creating new path to draw hexagon
+            context.beginPath(); 
             context.moveTo(centerX + radius, centerY);
             for (let i = 1; i <= 6; i++) {
                 let angle = i * Math.PI / 3;
@@ -701,19 +701,19 @@ canvas.addEventListener("mousemove", (event) => {
                 let y = centerY + radius * Math.sin(angle);
                 context.lineTo(x, y);
             }
-            context.closePath(); // closing path of hexagon
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill hexagon else draw border hexagon
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "lightning") {
-            context.beginPath(); // creating new path to draw lightning
+            context.beginPath(); 
             context.moveTo(prevMouseX, prevMouseY + 10);
             context.lineTo(prevMouseX + 10, prevMouseY + 10);
             context.lineTo(prevMouseX - 5, prevMouseY - 10);
             context.lineTo(event.offsetX, event.offsetY - 10);
             context.lineTo(event.offsetX - 10, event.offsetY - 20);
             context.lineTo(prevMouseX + 5, prevMouseY + 20);
-            context.closePath(); // closing path of lightning
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill lightning else draw border lightning
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "star") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
@@ -737,7 +737,7 @@ canvas.addEventListener("mousemove", (event) => {
             let y = centerY;
             let step = Math.PI / points;
 
-            context.beginPath(); // creating new path to draw star
+            context.beginPath(); 
             context.moveTo(centerX, centerY - outerRadius);
             for (let i = 0; i < points; i++) {
                 x = centerX + Math.cos(rotation) * outerRadius;
@@ -750,8 +750,8 @@ canvas.addEventListener("mousemove", (event) => {
                 rotation += step;
             }
             context.lineTo(centerX, centerY - outerRadius);
-            context.closePath(); // closing path of star
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill star else draw border star
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "rectangle") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
@@ -767,11 +767,11 @@ canvas.addEventListener("mousemove", (event) => {
                 centerY = event.offsetY;
             }
         
-            let radius = size / 4; // set radius to be 1/4 of the size for corners
+            let radius = size / 4; 
             let x = centerX - size / 2;
             let y = centerY - size / 2;
         
-            context.beginPath(); // creating new path to draw rounded square
+            context.beginPath(); 
             context.moveTo(x + radius, y);
             context.lineTo(x + size - radius, y);
             context.arc(x + size - radius, y + radius, radius, -Math.PI / 2, 0);
@@ -781,8 +781,8 @@ canvas.addEventListener("mousemove", (event) => {
             context.arc(x + radius, y + size - radius, radius, Math.PI / 2, Math.PI);
             context.lineTo(x, y + radius);
             context.arc(x + radius, y + radius, radius, Math.PI, -Math.PI / 2);
-            context.closePath(); // closing path of rounded square
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill rounded square else draw border rounded square
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "right-triangle") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
@@ -805,12 +805,12 @@ canvas.addEventListener("mousemove", (event) => {
             let x3 = centerX;
             let y3 = event.offsetY;
         
-            context.beginPath(); // creating new path to draw right triangle
+            context.beginPath(); 
             context.moveTo(x1, y1);
             context.lineTo(x2, y2);
             context.lineTo(x3, y3);
-            context.closePath(); // closing path of right triangle
-            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); // if fillColor is checked fill right triangle else draw border right triangle
+            context.closePath(); 
+            shapeFill.classList.contains("selected") ? context.fill() : context.stroke(); 
         }
         else if (currentShape == "cloud") {
             let distanceX = Math.abs(event.offsetX - prevMouseX);
